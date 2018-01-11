@@ -1,0 +1,158 @@
+﻿<Window x:Class="UniversalPackageExplorer.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:UniversalPackageExplorer"
+        mc:Ignorable="d" Height="350" Width="525"
+        x:Name="Main" Closing="MainWindow_Closing" Closed="MainWindow_Closed"
+        DataContext="{Binding Package, ElementName=Main, Mode=OneWay}"
+        Title="{Binding WindowTitlePrefix, StringFormat=\{0\} - Universal Package Explorer, FallbackValue=Universal Package Explorer}">
+    <Window.Resources>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+        <local:ValueIfNullConverter x:Key="ValueIfNullConverter"/>
+    </Window.Resources>
+    <Window.CommandBindings>
+        <CommandBinding Command="local:Commands.New"
+                        Executed="File_New"/>
+        <CommandBinding Command="local:Commands.Open"
+                        Executed="File_Open"/>
+        <CommandBinding Command="local:Commands.OpenFromFeed"/>
+        <CommandBinding Command="local:Commands.Close"
+                        CanExecute="File_CanClose"
+                        Executed="File_Close"/>
+        <CommandBinding Command="local:Commands.Save"
+                        CanExecute="File_CanSave"
+                        Executed="File_Save"/>
+        <CommandBinding Command="local:Commands.SaveAs"
+                        CanExecute="File_CanSaveAs"
+                        Executed="File_SaveAs"/>
+        <CommandBinding Command="local:Commands.Publish"
+                        CanExecute="File_CanPublish"/>
+        <CommandBinding Command="local:Commands.Exit"
+                        Executed="File_Exit"/>
+        <CommandBinding Command="local:Commands.ViewFileContent"
+                        CanExecute="Content_CanOpenFile"
+                        Executed="Content_ViewFileContent"/>
+        <CommandBinding Command="local:Commands.OpenFileInWindowsShell"
+                        CanExecute="Content_CanOpenFile"
+                        Executed="Content_OpenFileInWindowsShell"/>
+        <CommandBinding Command="local:Commands.NewFile"
+                        Executed="Content_NewFile"/>
+        <CommandBinding Command="local:Commands.ExistingFile"
+                        Executed="Content_ExistingFile"/>
+        <CommandBinding Command="local:Commands.NewFolder"
+                        Executed="Content_NewFolder"/>
+        <CommandBinding Command="local:Commands.Rename"
+                        CanExecute="Content_CanRename"
+                        Executed="Content_Rename"/>
+        <CommandBinding Command="local:Commands.Delete"
+                        CanExecute="Content_CanDelete"
+                        Executed="Content_Delete"/>
+        <CommandBinding Command="local:Commands.ProjectHome"
+                        Executed="Help_ProjectHome"/>
+        <CommandBinding Command="local:Commands.FileReference"
+                        Executed="Help_FileReference"/>
+        <CommandBinding Command="local:Commands.About"
+                        Executed="Help_About"/>
+    </Window.CommandBindings>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+        <Menu IsEnabled="{Binding OperationsAllowed, ElementName=Main, Mode=OneWay}">
+            <MenuItem Header="_File">
+                <MenuItem Command="local:Commands.New"/>
+                <MenuItem Command="local:Commands.Open"/>
+                <MenuItem Command="local:Commands.OpenFromFeed"/>
+                <Separator/>
+                <MenuItem Command="local:Commands.Close"/>
+                <Separator/>
+                <MenuItem Command="local:Commands.Save"/>
+                <MenuItem Command="local:Commands.SaveAs"/>
+                <Separator/>
+                <MenuItem Command="local:Commands.Publish"/>
+                <MenuItem Header="_Recent Files" StaysOpenOnClick="True" IsEnabled="{Binding JumpItems.Count}" ItemsSource="{Binding JumpItems}" DataContext="{Binding RecentFiles, ElementName=Main, Mode=OneWay}"/>
+                <Separator/>
+                <MenuItem Command="local:Commands.Exit"/>
+            </MenuItem>
+            <MenuItem Header="_Content" IsEnabled="{Binding Package, Converter={StaticResource ValueIfNullConverter}, ConverterParameter=True, FallbackValue=False, ElementName=Main, Mode=OneWay}">
+                <MenuItem Command="local:Commands.ViewFileContent"/>
+                <MenuItem Command="local:Commands.OpenFileInWindowsShell"/>
+                <Separator/>
+                <MenuItem Header="_Add" StaysOpenOnClick="True">
+                    <MenuItem Command="local:Commands.NewFile"/>
+                    <MenuItem Command="local:Commands.ExistingFile"/>
+                    <MenuItem Command="local:Commands.NewFolder"/>
+                </MenuItem>
+                <MenuItem Command="local:Commands.Rename"/>
+                <MenuItem Command="local:Commands.Delete"/>
+            </MenuItem>
+            <MenuItem Header="_Help">
+                <MenuItem Command="local:Commands.ProjectHome"/>
+                <MenuItem Command="local:Commands.FileReference"/>
+                <MenuItem Command="local:Commands.About"/>
+            </MenuItem>
+        </Menu>
+        <Grid Grid.Row="1" DataContext="{Binding Package, ElementName=Main, Mode=OneWay}" Visibility="{Binding IsPackageOpen, Converter={StaticResource BooleanToVisibilityConverter}, ElementName=Main}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <TreeView x:Name="FileTree" BorderThickness="0" ContextMenuOpening="FileTree_ContextMenuUnfocus"
+                      AllowDrop="True" Drop="FileTree_Drop" DragOver="FileTree_DragOver">
+                <TreeView.Resources>
+                    <ContextMenu x:Key="TreeFolderContextMenu">
+                        <MenuItem Command="local:Commands.NewFile"/>
+                        <MenuItem Command="local:Commands.ExistingFile"/>
+                        <MenuItem Command="local:Commands.NewFolder"/>
+                        <Separator/>
+                        <MenuItem Command="local:Commands.Rename"/>
+                        <MenuItem Command="local:Commands.Delete"/>
+                    </ContextMenu>
+                    <ContextMenu x:Key="TreeFileContextMenu">
+                        <MenuItem Command="local:Commands.ViewFileContent"/>
+                        <MenuItem Command="local:Commands.OpenFileInWindowsShell"/>
+                        <MenuItem Command="local:Commands.SaveFileAs"/>
+                        <Separator/>
+                        <MenuItem Command="local:Commands.Rename"/>
+                        <MenuItem Command="local:Commands.Delete"/>
+                    </ContextMenu>
+                    <HierarchicalDataTemplate x:Key="FileTreeTemplate" DataType="{x:Type local:UniversalPackageFile}" ItemsSource="{Binding Children}">
+                        <TextBlock DataContext="{Binding}" Text="{Binding Name, Mode=OneWay}" ContextMenuOpening="FileTree_ContextMenuFocus"
+                                   ContextMenu="{Binding Children, Converter={StaticResource ValueIfNullConverter}, ConverterParameter={StaticResource TreeFileContextMenu}, FallbackValue={StaticResource TreeFolderContextMenu}, Mode=OneWay}"
+                                   AllowDrop="True" Drop="FileTree_Drop" DragOver="FileTree_DragOver" MouseLeave="FileTree_MouseLeave"/>
+                    </HierarchicalDataTemplate>
+                </TreeView.Resources>
+                <TreeView.ContextMenu>
+                    <ContextMenu>
+                        <MenuItem Command="local:Commands.NewFile"/>
+                        <MenuItem Command="local:Commands.ExistingFile"/>
+                        <MenuItem Command="local:Commands.NewFolder"/>
+                    </ContextMenu>
+                </TreeView.ContextMenu>
+                <TreeView.Items>
+                    <TreeViewItem Header="Metadata" ItemsSource="{Binding Metadata.Root, Mode=OneWay}" ItemTemplate="{StaticResource FileTreeTemplate}" IsExpanded="True" Focusable="False"
+                                  AllowDrop="True" Drop="FileTree_Drop" DragOver="FileTree_DragOver"/>
+                    <TreeViewItem Header="Files" ItemsSource="{Binding Files.Root, Mode=OneWay}" ItemTemplate="{StaticResource FileTreeTemplate}" IsExpanded="True" Focusable="False"/>
+                </TreeView.Items>
+            </TreeView>
+            <GridSplitter Width="5" VerticalAlignment="Stretch" HorizontalAlignment="Center" Grid.Column="1"/>
+            <local:ManifestEditor Grid.Column="2" Package="{Binding}"/>
+        </Grid>
+        <Grid Grid.Row="1" Visibility="{Binding Package, Converter={StaticResource ValueIfNullConverter}, ConverterParameter=Visible, FallbackValue=Collapsed, ElementName=Main}" Margin="10">
+            <Grid Visibility="{Binding OperationsAllowed, Converter={StaticResource BooleanToVisibilityConverter}, ElementName=Main, Mode=OneWay}">
+                <Grid.RowDefinitions>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+                <Button Grid.Row="0" Command="local:Commands.Open" Content="Open a local package" Margin="10"/>
+                <Button Grid.Row="1" Command="local:Commands.OpenFromFeed" Content="Open a package from online feed" Margin="10"/>
+                <Button Grid.Row="2" Command="local:Commands.New" Content="Create a new package" Margin="10"/>
+            </Grid>
+        </Grid>
+    </Grid>
+</Window>

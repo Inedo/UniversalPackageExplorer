@@ -1,0 +1,31 @@
+﻿<Window x:Class="UniversalPackageExplorer.NamePromptWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:UniversalPackageExplorer"
+        mc:Ignorable="d"
+        x:Name="NamePrompt"
+        Title="Enter Name" Height="200" Width="300" WindowStartupLocation="CenterOwner">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <Label Content="{Binding Prompt, TargetNullValue=Enter new name:, ElementName=NamePrompt, Mode=OneTime}" Padding="5,0" Grid.Row="1"/>
+        <TextBox Text="{Binding Text, ElementName=NamePrompt, Mode=TwoWay}" Margin="5" Grid.Row="2" TabIndex="0"/>
+        <Label Content="{Binding ValidationError, ElementName=NamePrompt, Mode=OneWay}" HorizontalContentAlignment="Center" Foreground="Red" Grid.Row="3"/>
+        <Grid Grid.Row="4">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition Width="Auto" MinWidth="75"/>
+                <ColumnDefinition Width="Auto" MinWidth="75"/>
+            </Grid.ColumnDefinitions>
+            <Button IsDefault="True" IsEnabled="{Binding ValidationError, FallbackValue=False, TargetNullValue=True, ElementName=NamePrompt, Mode=OneWay}" Content="{Binding CommandName, Mode=OneTime, FallbackValue=OK, ElementName=NamePrompt}" Grid.Column="1" Margin="5" Click="Button_Submit" TabIndex="1"/>
+            <Button IsCancel="True" Content="Cancel" Grid.Column="2" Margin="5" Click="Button_Cancel" TabIndex="2"/>
+        </Grid>
+    </Grid>
+</Window>

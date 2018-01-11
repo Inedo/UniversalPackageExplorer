@@ -1,0 +1,201 @@
+﻿<UserControl x:Class="UniversalPackageExplorer.ManifestEditor"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:UniversalPackageExplorer"
+             mc:Ignorable="d" x:Name="Editor"
+             d:DesignHeight="300" d:DesignWidth="300">
+    <Grid Background="{DynamicResource {x:Static SystemColors.WindowBrushKey}}">
+        <Grid.Resources>
+            <local:ItalicIfNullConverter x:Key="ItalicIfNullConverter"/>
+            <local:ValueIfNullConverter x:Key="ValueIfNullConverter"/>
+            <local:ValueIfZeroConverter x:Key="ValueIfZeroConverter"/>
+            <local:MarkdownConverter x:Key="MarkdownConverter"/>
+            <local:DependenciesConverter x:Key="DependenciesConverter"/>
+        </Grid.Resources>
+        <ScrollViewer Visibility="{Binding ViewModeVisibility, ElementName=Editor, Mode=OneWay}" VerticalScrollBarVisibility="Auto">
+            <StackPanel Orientation="Vertical" Margin="0,0,0,25">
+                <StackPanel Orientation="Horizontal" Margin="2">
+                    <TextBlock Text="Group: " FontWeight="Bold"/>
+                    <TextBlock Text="{Binding Package.Manifest.Group, TargetNullValue=(no group name), ElementName=Editor, Mode=OneWay}" FontStyle="{Binding Package.Manifest.Group, Converter={StaticResource ItalicIfNullConverter}, ElementName=Editor, Mode=OneWay}"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="2">
+                    <TextBlock Text="Name: " FontWeight="Bold"/>
+                    <TextBlock Text="{Binding Package.Manifest.Name, ElementName=Editor, Mode=OneWay}"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="2">
+                    <TextBlock Text="Version: " FontWeight="Bold"/>
+                    <TextBlock Text="{Binding Package.Manifest.VersionText, ElementName=Editor, Mode=OneWay}"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="2">
+                    <TextBlock Text="Title: " FontWeight="Bold"/>
+                    <TextBlock Text="{Binding Package.Manifest.Title, TargetNullValue=(no title), ElementName=Editor, Mode=OneWay}" FontStyle="{Binding Package.Manifest.Title, Converter={StaticResource ItalicIfNullConverter}, ElementName=Editor, Mode=OneWay}"/>
+                </StackPanel>
+
+                <StackPanel Orientation="Horizontal" Margin="2">
+                    <TextBlock Text="Icon: " FontWeight="Bold" VerticalAlignment="Center"/>
+                    <TextBlock Text="{Binding Package.Manifest.IconText, TargetNullValue=(no icon), ElementName=Editor, Mode=OneWay}" VerticalAlignment="Center" FontStyle="Italic" Visibility="{Binding Package.Manifest.IconUri, Converter={StaticResource ValueIfNullConverter}, ConverterParameter=Visible, FallbackValue=Collapsed, ElementName=Editor, Mode=OneWay}"/>
+                    <Image Source="{Binding IconSource, ElementName=Editor, Mode=OneWay}" Width="64" Height="64" HorizontalAlignment="Left" Visibility="{Binding IconSource, Converter={StaticResource ValueIfNullConverter}, ConverterParameter=Collapsed, FallbackValue=Visible, ElementName=Editor, Mode=OneWay}"/>
+                </StackPanel>
+
+                <StackPanel Orientation="Horizontal" Margin="2">
+                    <TextBlock Text="Description: " FontWeight="Bold"/>
+                    <TextBlock Text="(no description)" FontStyle="Italic" Visibility="{Binding Package.Manifest.Description, Converter={StaticResource ValueIfNullConverter}, ConverterParameter=Visible, FallbackValue=Collapsed, ElementName=Editor, Mode=OneWay}"/>
+                </StackPanel>
+                <FlowDocumentScrollViewer Margin="2,0,2,0" Document="{Binding Package.Manifest.Description, Converter={StaticResource MarkdownConverter}, ElementName=Editor, Mode=OneWay}" Visibility="{Binding Package.Manifest.Description, Converter={StaticResource ValueIfNullConverter}, ConverterParameter=Collapsed, FallbackValue=Visible, ElementName=Editor, Mode=OneWay}" IsHitTestVisible="False" VerticalScrollBarVisibility="Disabled"/>
+
+                <StackPanel Orientation="Horizontal" Margin="2">
+                    <TextBlock Text="Dependencies: " FontWeight="Bold"/>
+                    <TextBlock Text="(no dependencies)" FontStyle="Italic" Visibility="{Binding Package.Manifest.Dependencies.Count, Converter={StaticResource ValueIfZeroConverter}, ConverterParameter=Visible, FallbackValue=Collapsed, ElementName=Editor, Mode=OneWay}"/>
+                </StackPanel>
+                <ItemsControl ItemsSource="{Binding Package.Manifest.Dependencies, ElementName=Editor, Mode=OneWay}" Margin="2">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate DataType="{x:Type local:UniversalPackageDependency}">
+                            <Grid>
+                                <StackPanel Orientation="Horizontal" Visibility="{Binding ValidationError, Converter={StaticResource ValueIfNullConverter}, ConverterParameter=Visible, FallbackValue=Collapsed}">
+                                    <TextBlock Text="{Binding GroupAndName, Mode=OneWay}" FontWeight="Bold" Margin="0,0,5,0"/>
+                                    <TextBlock Text="{Binding Version, TargetNullValue=(latest version), Mode=OneWay}" FontStyle="{Binding Version, Converter={StaticResource ItalicIfNullConverter}, Mode=OneWay}"/>
+                                </StackPanel>
+                                <TextBlock Text="{Binding RawValue}" Visibility="{Binding ValidationError, Converter={StaticResource ValueIfNullConverter}, ConverterParameter=Collapsed, FallbackValue=Visible}" Foreground="Red"/>
+                            </Grid>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </StackPanel>
+        </ScrollViewer>
+        <ScrollViewer Visibility="{Binding EditModeVisibility, ElementName=Editor, Mode=OneWay}" VerticalScrollBarVisibility="Auto">
+            <StackPanel Orientation="Vertical" Margin="0,0,0,25">
+                <Grid Validation.ValidationAdornerSiteFor="{Binding ElementName=GroupText}" Margin="2">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition/>
+                        <ColumnDefinition Width="4*"/>
+                    </Grid.ColumnDefinitions>
+                    <Label Content="_Group:" Target="{Binding ElementName=GroupText}" FontWeight="Bold" Padding="0"/>
+                    <TextBox Grid.Column="1" x:Name="GroupText" TabIndex="0" VerticalAlignment="Center">
+                        <TextBox.Text>
+                            <Binding Path="Package.Manifest.Group" ElementName="Editor" Mode="TwoWay">
+                                <Binding.ValidationRules>
+                                    <local:TextValidationRule ValidatesOnTargetUpdated="True" ValidationStep="CommittedValue" Name="Group" AllowEmpty="True" AllowedCharacters="0aA-./_" DisallowStartEndCharacters="/" MaxLength="50"/>
+                                </Binding.ValidationRules>
+                            </Binding>
+                        </TextBox.Text>
+                    </TextBox>
+                    <TextBlock Grid.ColumnSpan="2" Grid.Row="1" Visibility="{Binding Count, Converter={StaticResource ValueIfZeroConverter}, ConverterParameter=Collapsed, FallbackValue=Visible}" Text="{Binding [0].ErrorContent}" DataContext="{Binding (Validation.ValidationAdornerSiteFor).(Validation.Errors), RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Grid}}}"/>
+                </Grid>
+                <Grid Validation.ValidationAdornerSiteFor="{Binding ElementName=NameText}" Margin="2">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition/>
+                        <ColumnDefinition Width="4*"/>
+                    </Grid.ColumnDefinitions>
+                    <Label Content="_Name:" Target="{Binding ElementName=NameText}" FontWeight="Bold" Padding="0"/>
+                    <TextBox Grid.Column="1" x:Name="NameText" TabIndex="1" VerticalAlignment="Center">
+                        <TextBox.Text>
+                            <Binding Path="Package.Manifest.Name" ElementName="Editor" Mode="TwoWay">
+                                <Binding.ValidationRules>
+                                    <local:TextValidationRule ValidatesOnTargetUpdated="True" ValidationStep="CommittedValue" Name="Name" AllowedCharacters="0aA-._" MinLength="1" MaxLength="50"/>
+                                </Binding.ValidationRules>
+                            </Binding>
+                        </TextBox.Text>
+                    </TextBox>
+                    <TextBlock Grid.ColumnSpan="2" Grid.Row="1" Visibility="{Binding Count, Converter={StaticResource ValueIfZeroConverter}, ConverterParameter=Collapsed, FallbackValue=Visible}" Text="{Binding [0].ErrorContent}" DataContext="{Binding (Validation.ValidationAdornerSiteFor).(Validation.Errors), RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Grid}}}"/>
+                </Grid>
+                <Grid Validation.ValidationAdornerSiteFor="{Binding ElementName=VersionText}" Margin="2">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition/>
+                        <ColumnDefinition Width="4*"/>
+                    </Grid.ColumnDefinitions>
+                    <Label Content="_Version:" Target="{Binding ElementName=VersionText}" FontWeight="Bold" Padding="0"/>
+                    <TextBox Grid.Column="1" x:Name="VersionText" TabIndex="2" VerticalAlignment="Center">
+                        <TextBox.Text>
+                            <Binding Path="Package.Manifest.VersionText" ElementName="Editor" Mode="TwoWay">
+                                <Binding.ValidationRules>
+                                    <local:SemverValidationRule ValidatesOnTargetUpdated="True" ValidationStep="CommittedValue"/>
+                                </Binding.ValidationRules>
+                            </Binding>
+                        </TextBox.Text>
+                    </TextBox>
+                    <TextBlock Grid.ColumnSpan="2" Grid.Row="1" Visibility="{Binding Count, Converter={StaticResource ValueIfZeroConverter}, ConverterParameter=Collapsed, FallbackValue=Visible}" Text="{Binding [0].ErrorContent}" DataContext="{Binding (Validation.ValidationAdornerSiteFor).(Validation.Errors), RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Grid}}}"/>
+                </Grid>
+                <Grid Validation.ValidationAdornerSiteFor="{Binding ElementName=TitleText}" Margin="2">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition/>
+                        <ColumnDefinition Width="4*"/>
+                    </Grid.ColumnDefinitions>
+                    <Label Content="_Title:" Target="{Binding ElementName=TitleText}" FontWeight="Bold" Padding="0"/>
+                    <TextBox Grid.Column="1" x:Name="TitleText" TabIndex="3" VerticalAlignment="Center">
+                        <TextBox.Text>
+                            <Binding Path="Package.Manifest.Title" ElementName="Editor" Mode="TwoWay">
+                                <Binding.ValidationRules>
+                                    <local:TextValidationRule ValidatesOnTargetUpdated="True" ValidationStep="CommittedValue" Name="Title" AllowEmpty="True" MaxLength="50"/>
+                                </Binding.ValidationRules>
+                            </Binding>
+                        </TextBox.Text>
+                    </TextBox>
+                    <TextBlock Grid.ColumnSpan="2" Grid.Row="1" Visibility="{Binding Count, Converter={StaticResource ValueIfZeroConverter}, ConverterParameter=Collapsed, FallbackValue=Visible}" Text="{Binding [0].ErrorContent}" DataContext="{Binding (Validation.ValidationAdornerSiteFor).(Validation.Errors), RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Grid}}}"/>
+                </Grid>
+                <Grid Validation.ValidationAdornerSiteFor="{Binding ElementName=IconText}" Margin="2">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition/>
+                        <ColumnDefinition Width="4*"/>
+                    </Grid.ColumnDefinitions>
+                    <Label Content="_Icon:" Target="{Binding ElementName=IconText}" FontWeight="Bold" Padding="0"/>
+                    <TextBox Grid.Column="1" x:Name="IconText" TabIndex="4" VerticalAlignment="Center">
+                        <TextBox.Text>
+                            <Binding Path="Package.Manifest.IconText" ElementName="Editor" Mode="TwoWay">
+                                <Binding.ValidationRules>
+                                    <local:IconValidationRule ValidatesOnTargetUpdated="True" ValidationStep="CommittedValue"/>
+                                </Binding.ValidationRules>
+                            </Binding>
+                        </TextBox.Text>
+                    </TextBox>
+                    <TextBlock Grid.ColumnSpan="2" Grid.Row="1" Visibility="{Binding Count, Converter={StaticResource ValueIfZeroConverter}, ConverterParameter=Collapsed, FallbackValue=Visible}" Text="{Binding [0].ErrorContent}" DataContext="{Binding (Validation.ValidationAdornerSiteFor).(Validation.Errors), RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Grid}}}"/>
+                </Grid>
+                <StackPanel Orientation="Vertical" Margin="2">
+                    <StackPanel Orientation="Horizontal">
+                        <Label Content="_Description: " Target="{Binding ElementName=DescriptionText}" FontWeight="Bold" Padding="0"/>
+                        <TextBlock Text="(use Markdown)" FontStyle="Italic"/>
+                    </StackPanel>
+                    <TextBox x:Name="DescriptionText" TabIndex="5" VerticalAlignment="Center" Text="{Binding Package.Manifest.Description, ElementName=Editor, Mode=TwoWay}" MinLines="3" AcceptsReturn="True" TextWrapping="Wrap" VerticalScrollBarVisibility="Disabled"/>
+                </StackPanel>
+                <StackPanel Validation.ValidationAdornerSiteFor="{Binding ElementName=DependenciesText}" Orientation="Vertical" Margin="2">
+                    <StackPanel Orientation="Horizontal">
+                        <Label Content="D_ependencies: " Target="{Binding ElementName=DependenciesText}" FontWeight="Bold" Padding="0"/>
+                        <TextBlock Text="(name:version or name)" FontStyle="Italic"/>
+                    </StackPanel>
+                    <TextBox x:Name="DependenciesText" HorizontalScrollBarVisibility="Auto" AcceptsReturn="True" TabIndex="6">
+                        <TextBox.Text>
+                            <Binding Path="Package.Manifest.Dependencies" ElementName="Editor" Converter="{StaticResource DependenciesConverter}" Mode="TwoWay">
+                                <Binding.ValidationRules>
+                                    <local:DependenciesValidationRule ValidatesOnTargetUpdated="True" ValidationStep="CommittedValue"/>
+                                </Binding.ValidationRules>
+                            </Binding>
+                        </TextBox.Text>
+                    </TextBox>
+                    <TextBlock Visibility="{Binding Count, Converter={StaticResource ValueIfZeroConverter}, ConverterParameter=Collapsed, FallbackValue=Visible}" Text="{Binding [0].ErrorContent}" DataContext="{Binding (Validation.ValidationAdornerSiteFor).(Validation.Errors), RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type StackPanel}}}"/>
+                </StackPanel>
+            </StackPanel>
+        </ScrollViewer>
+        <Button MinWidth="50" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="25,5" Content="{Binding ToggleButtonText, ElementName=Editor, Mode=OneWay}" Click="ToggleEditMode"/>
+    </Grid>
+</UserControl>
