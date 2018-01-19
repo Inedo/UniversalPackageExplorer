@@ -3,11 +3,11 @@ using Newtonsoft.Json.Linq;
 using Semver;
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
+using UniversalPackageExplorer.Collections;
 
-namespace UniversalPackageExplorer
+namespace UniversalPackageExplorer.UPack
 {
     [JsonObject]
     public sealed class UniversalPackageManifest : INotifyPropertyChanged

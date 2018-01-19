@@ -1,5 +1,4 @@
-﻿using System.Threading.Tasks;
-using System.Windows;
+﻿using System.Windows;
 
 namespace UniversalPackageExplorer
 {
@@ -12,6 +11,8 @@ namespace UniversalPackageExplorer
 
         private void Application_Startup(object sender, StartupEventArgs e)
         {
+            WindowsRegistry.AssociateWithUPackFiles();
+
             if (e.Args.Length != 0)
             {
                 StartupPackage = e.Args[0];

@@ -1,0 +1,27 @@
+﻿<Window x:Class="UniversalPackageExplorer.ConfirmationWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        x:Name="Confirmation"
+        Height="200" Width="300" WindowStartupLocation="CenterOwner">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <Label Content="{Binding Prompt, ElementName=Confirmation, Mode=OneTime}"/>
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition Width="Auto" MinWidth="75"/>
+                <ColumnDefinition Width="Auto" MinWidth="75"/>
+                <ColumnDefinition Width="Auto" MinWidth="75"/>
+            </Grid.ColumnDefinitions>
+            <Button Content="Yes" Grid.Column="1" Margin="5" Click="Button_Yes" TabIndex="1"/>
+            <Button Content="No" Grid.Column="2" Margin="5" Click="Button_No" TabIndex="2"/>
+            <Button IsDefault="True" IsCancel="True" Content="Cancel" Grid.Column="3" Margin="5" Click="Button_Cancel" TabIndex="3"/>
+        </Grid>
+    </Grid>
+</Window>

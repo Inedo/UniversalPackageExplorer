@@ -1,43 +1,95 @@
 ﻿using System;
 using System.Collections.Specialized;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using UniversalPackageExplorer.UPack;
 
 namespace UniversalPackageExplorer
 {
-    partial class MainWindow
+    /// <summary>
+    /// Interaction logic for FileTree.xaml
+    /// </summary>
+    public partial class FileTree : UserControl, INotifyPropertyChanged
     {
-        private void FileTree_ContextMenuUnfocus(object sender, ContextMenuEventArgs e)
+        public FileTree()
+        {
+            InitializeComponent();
+
+            this.Tree.SelectedItemChanged += (s, e) =>
+            {
+                this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(SelectedItem)));
+            };
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        public static readonly DependencyProperty OperationsAllowedProperty = DependencyProperty.Register(nameof(OperationsAllowed), typeof(bool), typeof(FileTree));
+        [Bindable(true)]
+        public bool OperationsAllowed
+        {
+            get => (bool)this.GetValue(OperationsAllowedProperty);
+            set => this.SetValue(OperationsAllowedProperty, value);
+        }
+
+        public static readonly DependencyProperty PackageProperty = DependencyProperty.Register(nameof(Package), typeof(UniversalPackage), typeof(FileTree));
+        [Bindable(true)]
+        public UniversalPackage Package
+        {
+            get => (UniversalPackage)this.GetValue(PackageProperty);
+            set => this.SetValue(PackageProperty, value);
+        }
+
+        public UniversalPackageFile SelectedItem
+        {
+            get => (UniversalPackageFile)this.Tree.SelectedItem;
+            set
+            {
+                if (value != null)
+                {
+                    this.FocusInTree(value);
+                    return;
+                }
+
+                var selected = this.SelectedItem;
+                if (selected != null)
+                {
+                    this.GetInTree(selected).IsSelected = false;
+                }
+            }
+        }
+
+        private void Tree_ContextMenuUnfocus(object sender, ContextMenuEventArgs e)
         {
             if (e.Source != sender)
             {
                 return;
             }
-            if (this.FileTree.SelectedItem != null)
+            if (this.Tree.SelectedItem != null)
             {
-                this.GetInTree((UniversalPackageFile)this.FileTree.SelectedItem).IsSelected = false;
+                this.GetInTree((UniversalPackageFile)this.Tree.SelectedItem).IsSelected = false;
             }
         }
 
-        private void FileTree_ContextMenuFocus(object sender, ContextMenuEventArgs e)
+        private void Tree_ContextMenuFocus(object sender, ContextMenuEventArgs e)
         {
-            this.FocusInTree((UniversalPackageFile)((TextBlock)sender).DataContext);
+            this.FocusInTree((UniversalPackageFile)((FileTreeItem)sender).DataContext);
         }
 
-        private bool FileTree_FromSender(object sender, out UniversalPackage.FileCollection collection, out string prefix)
+        private bool Tree_FromSender(object sender, out UniversalPackage.FileCollection collection, out string prefix)
         {
             if (sender is TreeViewItem)
             {
                 collection = this.Package.Metadata;
                 prefix = string.Empty;
             }
-            else if (sender is TextBlock text)
+            else if (sender is FileTreeItem item)
             {
-                var file = (UniversalPackageFile)text.DataContext;
+                var file = (UniversalPackageFile)item.DataContext;
                 collection = file.Collection;
                 if (file.Children == null)
                 {
@@ -63,13 +115,13 @@ namespace UniversalPackageExplorer
             return true;
         }
 
-        private void FileTree_DragOver(object sender, DragEventArgs e)
+        private void Tree_DragOver(object sender, DragEventArgs e)
         {
             if (!this.OperationsAllowed)
             {
                 e.Effects = DragDropEffects.None;
             }
-            else if (!FileTree_FromSender(sender, out var collection, out var prefix))
+            else if (!Tree_FromSender(sender, out var collection, out var prefix))
             {
                 e.Handled = false;
                 return;
@@ -105,7 +157,7 @@ namespace UniversalPackageExplorer
             e.Handled = true;
         }
 
-        private void FileTree_Drop(object sender, DragEventArgs e)
+        private void Tree_Drop(object sender, DragEventArgs e)
         {
             if (!this.OperationsAllowed || e.Effects == DragDropEffects.None)
             {
@@ -113,7 +165,7 @@ namespace UniversalPackageExplorer
                 return;
             }
 
-            if (!FileTree_FromSender(sender, out var collection, out var prefix))
+            if (!Tree_FromSender(sender, out var collection, out var prefix))
             {
                 e.Handled = false;
                 return;
@@ -168,7 +220,7 @@ namespace UniversalPackageExplorer
 
                 async Task<UniversalPackageFile> addFile(string namePrefix, FileInfo info)
                 {
-                    var file = await CreateFilePromptAsync(collection, namePrefix, info.Name);
+                    var file = await MainWindow.Instance.CreateFilePromptAsync(collection, namePrefix, info.Name);
                     if (file == null)
                     {
                         return null;
@@ -184,7 +236,7 @@ namespace UniversalPackageExplorer
 
                 async Task<UniversalPackageFile> addDirectory(string namePrefix, DirectoryInfo dir)
                 {
-                    var directory = await CreateDirectoryPromptAsync(collection, namePrefix, dir.Name);
+                    var directory = await MainWindow.Instance.CreateDirectoryPromptAsync(collection, namePrefix, dir.Name);
                     if (directory == null)
                     {
                         return null;
@@ -209,7 +261,7 @@ namespace UniversalPackageExplorer
 
         private TreeViewItem GetInTree(UniversalPackageFile file)
         {
-            var collectionItem = this.FileTree.Items.Cast<TreeViewItem>().Single(i => i.ItemsSource == file.Collection.Root);
+            var collectionItem = this.Tree.Items.Cast<TreeViewItem>().Single(i => i.ItemsSource == file.Collection.Root);
             var (children, view) = file.FullName.Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries).Aggregate((children: file.Collection.Root, view: collectionItem), (item, name) =>
             {
                 var child = item.children[name];
@@ -223,24 +275,24 @@ namespace UniversalPackageExplorer
             this.GetInTree(file).Focus();
         }
 
-        private void FileTree_MouseLeave(object sender, MouseEventArgs e)
+        private void Tree_MouseLeave(object sender, MouseEventArgs e)
         {
             if (e.LeftButton == MouseButtonState.Pressed)
             {
-                var text = (TextBlock)e.Source;
-                var file = (UniversalPackageFile)text.DataContext;
+                var panel = (FileTreeItem)e.Source;
+                var file = (UniversalPackageFile)panel.DataContext;
                 var dataObject = new DataObject(typeof(UniversalPackageFile).FullName, file, false);
                 this.OperationsAllowed = false;
                 Task.Run(async () =>
                 {
-                    dataObject.SetFileDropList(new StringCollection { await ExportTempFileAsync(file) });
+                    dataObject.SetFileDropList(new StringCollection { await file.ExportTempFileAsync() });
 
                     await this.Dispatcher.InvokeAsync(() =>
                     {
                         this.OperationsAllowed = true;
                         try
                         {
-                            DragDrop.DoDragDrop(text, dataObject, DragDropEffects.All);
+                            DragDrop.DoDragDrop(panel, dataObject, DragDropEffects.All);
                         }
                         catch
                         {
@@ -248,82 +300,6 @@ namespace UniversalPackageExplorer
                     });
                 });
             }
-        }
-
-        private string CreateTempDirectory()
-        {
-            var baseTempDir = new DirectoryInfo(Path.GetTempPath());
-            while (true)
-            {
-                var name = Path.GetRandomFileName();
-                try
-                {
-                    return baseTempDir.CreateSubdirectory(name).FullName;
-                }
-                catch (IOException)
-                {
-                    // already exists; try a different name.
-                }
-            }
-        }
-
-        private async Task<string> ExportTempFileAsync(UniversalPackageFile file)
-        {
-            var tempDir = CreateTempDirectory();
-            var fileName = await ExportTempFileAsync(tempDir, file);
-            AppDomain.CurrentDomain.DomainUnload += (s, _e) =>
-            {
-                try
-                {
-                    Directory.Delete(tempDir, true);
-                }
-                catch
-                {
-                }
-            };
-            return fileName;
-        }
-
-        private async Task<string> ExportTempFileAsync(UniversalPackage.FileCollection.SubTreeCollection dir)
-        {
-            var tempDir = CreateTempDirectory();
-            foreach (var file in dir)
-            {
-                await ExportTempFileAsync(tempDir, file);
-            }
-            AppDomain.CurrentDomain.DomainUnload += (s, _e) =>
-            {
-                try
-                {
-                    Directory.Delete(tempDir, true);
-                }
-                catch
-                {
-                }
-            };
-            return tempDir;
-        }
-
-        private async Task<string> ExportTempFileAsync(string basePath, UniversalPackageFile file)
-        {
-            var fullName = Path.Combine(basePath, file.Name);
-            if (file.Children == null)
-            {
-                using (var stream = new FileStream(fullName, FileMode.Create, FileAccess.Write, FileShare.None, 4096, FileOptions.Asynchronous | FileOptions.SequentialScan))
-                {
-                    await file.CopyToAsync(stream);
-                }
-            }
-            else
-            {
-                Directory.CreateDirectory(fullName);
-                foreach (var child in file.Children)
-                {
-                    await ExportTempFileAsync(fullName, child);
-                }
-            }
-
-            return fullName;
         }
     }
 }

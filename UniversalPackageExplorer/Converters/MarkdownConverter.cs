@@ -9,7 +9,7 @@ using System.Windows.Media;
 using BlockTag = CommonMark.Syntax.BlockTag;
 using InlineTag = CommonMark.Syntax.InlineTag;
 
-namespace UniversalPackageExplorer
+namespace UniversalPackageExplorer.Converters
 {
     [ValueConversion(typeof(string), typeof(FlowDocument))]
     public sealed class MarkdownConverter : IValueConverter

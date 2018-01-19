@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Windows;
+using UniversalPackageExplorer.UPack;
 
 namespace UniversalPackageExplorer
 {
@@ -63,6 +64,51 @@ namespace UniversalPackageExplorer
         {
             this.DialogResult = false;
             this.Close();
+        }
+
+        public static Func<string, string> CreateNameValidator(bool isDirectory, UniversalPackage.FileCollection collection, bool isMetadata, string prefix, string existingName = null)
+        {
+            return validate;
+
+            string validate(string newName)
+            {
+                if (string.IsNullOrWhiteSpace(newName))
+                {
+                    return "Enter a name.";
+                }
+
+                if (newName.Contains("/") || newName.Contains("\\"))
+                {
+                    return isDirectory ? "Folder names cannot contain slashes." : "File names cannot contain slashes.";
+                }
+
+                if (prefix == string.Empty && string.Equals(newName, "package", StringComparison.OrdinalIgnoreCase) && isMetadata)
+                {
+                    return isDirectory ? "A metadata folder cannot be named \"package\"." : "A metadata file cannot be named \"package\".";
+                }
+
+                if (string.Equals(newName, existingName, StringComparison.OrdinalIgnoreCase))
+                {
+                    return null;
+                }
+
+                var fullName = prefix + newName;
+
+                if (collection.ContainsKey(fullName))
+                {
+                    return "Name already in use!";
+                }
+
+                try
+                {
+                    collection.CheckPath(fullName);
+                    return null;
+                }
+                catch (ArgumentException ex)
+                {
+                    return ex.Message;
+                }
+            };
         }
     }
 }

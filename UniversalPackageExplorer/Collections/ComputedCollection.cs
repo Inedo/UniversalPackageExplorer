@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
 
-namespace UniversalPackageExplorer
+namespace UniversalPackageExplorer.Collections
 {
     public sealed class ComputedCollection<TOuter, TInput, TOutput> : IReadOnlyCollection<TOutput>, ICollection<TOutput>, INotifyCollectionChanged
         where TOuter : ICollection<TInput>, INotifyCollectionChanged

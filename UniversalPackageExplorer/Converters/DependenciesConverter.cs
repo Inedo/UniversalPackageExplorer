@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Windows.Data;
+using UniversalPackageExplorer.UPack;
 
-namespace UniversalPackageExplorer
+namespace UniversalPackageExplorer.Converters
 {
     [ValueConversion(typeof(IReadOnlyList<UniversalPackageDependency>), typeof(string))]
     public sealed class DependenciesConverter : IValueConverter

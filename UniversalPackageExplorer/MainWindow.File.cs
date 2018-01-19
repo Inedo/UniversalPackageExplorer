@@ -1,7 +1,9 @@
 ﻿using Microsoft.Win32;
+using System;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
+using UniversalPackageExplorer.UPack;
 
 namespace UniversalPackageExplorer
 {
@@ -55,7 +57,7 @@ namespace UniversalPackageExplorer
                 return;
             }
 
-            MessageBox.Show("Not yet implemented");
+            throw new NotImplementedException();
         }
         private void File_CanClose(object sender, CanExecuteRoutedEventArgs e)
         {
@@ -100,7 +102,7 @@ namespace UniversalPackageExplorer
                 ValidateNames = true,
                 OverwritePrompt = true,
                 AddExtension = true,
-                DefaultExt = "upack",
+                DefaultExt = ".upack",
                 Filter = "UPack files (*.upack)|*.upack|All files (*.*)|*.*"
             };
 
@@ -114,7 +116,11 @@ namespace UniversalPackageExplorer
             Task.Run(async () =>
             {
                 await this.Package.SaveAsync();
-                await this.Dispatcher.InvokeAsync(() => this.OperationsAllowed = true);
+                await this.Dispatcher.InvokeAsync(() =>
+                {
+                    this.AddRecentFile(this.Package.FullName);
+                    this.OperationsAllowed = true;
+                });
             });
         }
 
@@ -124,7 +130,7 @@ namespace UniversalPackageExplorer
         }
         private void File_Publish(object sender, ExecutedRoutedEventArgs e)
         {
-            MessageBox.Show("Not yet implemented");
+            throw new NotImplementedException();
         }
 
         private void File_Exit(object sender, RoutedEventArgs e)

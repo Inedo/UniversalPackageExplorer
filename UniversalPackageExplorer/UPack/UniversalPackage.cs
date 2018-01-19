@@ -13,7 +13,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
 
-namespace UniversalPackageExplorer
+namespace UniversalPackageExplorer.UPack
 {
     public sealed class UniversalPackage : INotifyPropertyChanged, IDisposable
     {

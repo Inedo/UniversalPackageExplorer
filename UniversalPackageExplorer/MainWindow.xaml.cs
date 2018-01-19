@@ -5,6 +5,7 @@ using System.Reflection;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Shell;
+using UniversalPackageExplorer.UPack;
 
 namespace UniversalPackageExplorer
 {
@@ -27,6 +28,8 @@ namespace UniversalPackageExplorer
                 this.OpenFile(App.StartupPackage);
             }
         }
+
+        public static MainWindow Instance => (MainWindow)Application.Current.MainWindow;
 
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -77,13 +80,7 @@ namespace UniversalPackageExplorer
 
         private void AddRecentFile(string name)
         {
-            var task = new JumpTask
-            {
-                ApplicationPath = Assembly.GetEntryAssembly().Location,
-                Arguments = "\"" + Path.GetFullPath(name).Replace("\"", "\"\"") + "\"",
-                Title = Path.GetFileName(name)
-            };
-            JumpList.AddToRecentCategory(task);
+            JumpList.AddToRecentCategory(name);
             this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(RecentFiles)));
         }
 
@@ -122,17 +119,24 @@ namespace UniversalPackageExplorer
                 return true;
             }
 
-            switch (MessageBox.Show(this, "You have unsaved changes. Do you want to save before performing this action?", "Unsaved Changes", MessageBoxButton.YesNoCancel, MessageBoxImage.None, MessageBoxResult.Cancel))
+            var confirm = new ConfirmationWindow("Unsaved Changes", "You have unsaved changes. Do you want to save before performing this action?")
             {
-                case MessageBoxResult.Yes:
-                    Commands.Save.Execute(this, this);
-                    return !this.Package.Dirty;
-                case MessageBoxResult.No:
-                    return true;
-                case MessageBoxResult.Cancel:
-                default:
-                    return false;
+                Owner = this
+            };
+
+            bool? result = confirm.ShowDialog();
+            if (!result.HasValue)
+            {
+                return false;
             }
+
+            if (result.Value)
+            {
+                Commands.Save.Execute(this, this);
+                return !this.Package.Dirty;
+            }
+
+            return true;
         }
     }
 }

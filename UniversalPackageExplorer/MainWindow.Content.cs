@@ -5,69 +5,26 @@ using System.IO;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
+using UniversalPackageExplorer.UPack;
 
 namespace UniversalPackageExplorer
 {
     partial class MainWindow
     {
-        private bool IsUPackJsonSelected => this.FileTree.SelectedItem != null && ((UniversalPackageFile)this.FileTree.SelectedItem).Collection == this.Package.Metadata && string.Equals(((UniversalPackageFile)this.FileTree.SelectedItem).FullName, "upack.json", StringComparison.OrdinalIgnoreCase);
-        private Func<string, string> ValidateName(bool isDirectory, UniversalPackage.FileCollection collection, string prefix, string existingName = null)
-        {
-            return validate;
-
-            string validate(string newName)
-            {
-                if (string.IsNullOrWhiteSpace(newName))
-                {
-                    return "Enter a name.";
-                }
-
-                if (newName.Contains("/") || newName.Contains("\\"))
-                {
-                    return isDirectory ? "Folder names cannot contain slashes." : "File names cannot contain slashes.";
-                }
-
-                if (prefix == string.Empty && string.Equals(newName, "package", StringComparison.OrdinalIgnoreCase) && collection == this.Package.Metadata)
-                {
-                    return isDirectory ? "A metadata folder cannot be named \"package\"." : "A metadata file cannot be named \"package\".";
-                }
-
-                if (string.Equals(newName, existingName, StringComparison.OrdinalIgnoreCase))
-                {
-                    return null;
-                }
-
-                var fullName = prefix + newName;
-
-                if (collection.ContainsKey(fullName))
-                {
-                    return "Name already in use!";
-                }
-
-                try
-                {
-                    collection.CheckPath(fullName);
-                    return null;
-                }
-                catch (ArgumentException ex)
-                {
-                    return ex.Message;
-                }
-            };
-        }
+        private bool IsUPackJsonSelected => this.FileTree.SelectedItem != null && this.FileTree.SelectedItem.Collection == this.Package.Metadata && string.Equals(this.FileTree.SelectedItem.FullName, "upack.json", StringComparison.OrdinalIgnoreCase);
 
         private void Content_CanOpenFile(object sender, CanExecuteRoutedEventArgs e)
         {
-            e.CanExecute = this.FileTree.SelectedItem != null && ((UniversalPackageFile)this.FileTree.SelectedItem).Children == null;
+            e.CanExecute = this.FileTree.SelectedItem != null && this.FileTree.SelectedItem.Children == null;
         }
         private void Content_ViewFileContent(object sender, ExecutedRoutedEventArgs e)
         {
-            var file = (UniversalPackageFile)this.FileTree.SelectedItem;
+            var file = this.FileTree.SelectedItem;
 
             this.OperationsAllowed = false;
             Task.Run(async () =>
             {
-                var fullName = await ExportTempFileAsync(file);
+                var fullName = await file.ExportTempFileAsync();
 
                 var txtCommand = SafeNativeMethods.AssocQueryString(SafeNativeMethods.AssocStr.Command, ".txt");
 
@@ -80,19 +37,19 @@ namespace UniversalPackageExplorer
         }
         private void Content_OpenFileInWindowsShell(object sender, ExecutedRoutedEventArgs e)
         {
-            var file = (UniversalPackageFile)this.FileTree.SelectedItem;
+            var file = this.FileTree.SelectedItem;
 
             this.OperationsAllowed = false;
             Task.Run(async () =>
             {
                 if (file.Collection == this.Package.Metadata)
                 {
-                    var fullName = await ExportTempFileAsync(file);
+                    var fullName = await file.ExportTempFileAsync();
                     Process.Start(new ProcessStartInfo(fullName) { UseShellExecute = true }).Dispose();
                 }
                 else
                 {
-                    var tempDir = await ExportTempFileAsync(file.Collection.Root);
+                    var tempDir = await file.Collection.Root.ExportTempFileAsync();
                     var fullName = Path.Combine(tempDir, file.FullName);
                     Process.Start(new ProcessStartInfo(fullName) { UseShellExecute = true }).Dispose();
                 }
@@ -100,14 +57,65 @@ namespace UniversalPackageExplorer
                 await this.Dispatcher.InvokeAsync(() => this.OperationsAllowed = true);
             });
         }
+        private void Content_SaveFileAs(object sender, ExecutedRoutedEventArgs e)
+        {
+            var file = this.FileTree.SelectedItem;
+            var ext = Path.GetExtension(file.Name);
+            var filter = "All files (*.*)|*.*";
+
+            if (ext.StartsWith("."))
+            {
+                try
+                {
+                    var name = SafeNativeMethods.AssocQueryString(SafeNativeMethods.AssocStr.FriendlyDocName, ext);
+                    filter = name + " (*" + ext + ")|*" + ext + "|" + filter;
+                }
+                catch (InvalidOperationException)
+                {
+                    filter = ext.Substring(1) + " file (*" + ext + ")|*" + ext + "|" + filter;
+                }
+            }
+
+            var dialog = new SaveFileDialog
+            {
+                ValidateNames = true,
+                OverwritePrompt = true,
+                DefaultExt = ext,
+                Filter = filter,
+                FileName = file.Name
+            };
+
+            if (dialog.ShowDialog() != true)
+            {
+                return;
+            }
+
+            this.OperationsAllowed = false;
+            Task.Run(async () =>
+            {
+                Directory.CreateDirectory(Path.GetDirectoryName(dialog.FileName));
+                using (var stream = new FileStream(dialog.FileName, FileMode.Create, FileAccess.Write, FileShare.None, 4096, FileOptions.Asynchronous | FileOptions.SequentialScan))
+                {
+                    await file.CopyToAsync(stream);
+                }
+
+                await this.Dispatcher.InvokeAsync(() =>
+                {
+                    this.OperationsAllowed = true;
+                });
+            });
+        }
 
         private void Content_NewFile(object sender, ExecutedRoutedEventArgs e)
         {
-            var referenceFile = (UniversalPackageFile)this.FileTree.SelectedItem;
+            var referenceFile = this.FileTree.SelectedItem;
             var collection = referenceFile == null ? this.Package.Files : referenceFile.Collection;
             var prefix = referenceFile == null ? string.Empty : referenceFile.FullName.Substring(0, referenceFile.FullName.LastIndexOf('/') + 1);
 
-            var prompt = new NamePromptWindow("New File", "New file name:", ValidateName(false, collection, prefix));
+            var prompt = new NamePromptWindow("New File", "New file name:", NamePromptWindow.CreateNameValidator(false, collection, collection == this.Package.Metadata, prefix))
+            {
+                Owner = this
+            };
 
             if (prompt.ShowDialog() == true)
             {
@@ -126,7 +134,7 @@ namespace UniversalPackageExplorer
 
         private void Content_ExistingFile(object sender, ExecutedRoutedEventArgs e)
         {
-            var referenceFile = (UniversalPackageFile)this.FileTree.SelectedItem;
+            var referenceFile = this.FileTree.SelectedItem;
             var collection = referenceFile == null ? this.Package.Files : referenceFile.Collection;
             var prefix = referenceFile == null ? string.Empty : referenceFile.FullName.Substring(0, referenceFile.FullName.LastIndexOf('/') + 1);
 
@@ -156,7 +164,11 @@ namespace UniversalPackageExplorer
                         {
                             var name = await this.Dispatcher.InvokeAsync(() =>
                             {
-                                var prompt = new NamePromptWindow("Existing File", "New file name:", ValidateName(false, collection, prefix)) { Text = Path.GetFileName(fileName) };
+                                var prompt = new NamePromptWindow("Existing File", "New file name:", NamePromptWindow.CreateNameValidator(false, collection, collection == this.Package.Metadata, prefix))
+                                {
+                                    Text = Path.GetFileName(fileName),
+                                    Owner = this
+                                };
 
                                 if (prompt.ShowDialog() == true)
                                 {
@@ -199,11 +211,14 @@ namespace UniversalPackageExplorer
 
         private void Content_NewFolder(object sender, ExecutedRoutedEventArgs e)
         {
-            var referenceFile = (UniversalPackageFile)this.FileTree.SelectedItem;
+            var referenceFile = this.FileTree.SelectedItem;
             var collection = referenceFile == null ? this.Package.Files : referenceFile.Collection;
             var prefix = referenceFile == null ? string.Empty : referenceFile.FullName.Substring(0, referenceFile.FullName.LastIndexOf('/') + 1);
 
-            var prompt = new NamePromptWindow("New Folder", "New folder name:", ValidateName(true, collection, prefix));
+            var prompt = new NamePromptWindow("New Folder", "New folder name:", NamePromptWindow.CreateNameValidator(true, collection, collection == this.Package.Metadata, prefix))
+            {
+                Owner = this
+            };
 
             if (prompt.ShowDialog() == true)
             {
@@ -226,10 +241,14 @@ namespace UniversalPackageExplorer
         }
         private void Content_Rename(object sender, ExecutedRoutedEventArgs e)
         {
-            var file = (UniversalPackageFile)this.FileTree.SelectedItem;
+            var file = this.FileTree.SelectedItem;
             var prefix = file.FullName.Substring(0, file.FullName.LastIndexOf('/') + 1);
 
-            var prompt = new NamePromptWindow("Rename", file.Children == null ? "Rename file to:" : "Rename folder to:", ValidateName(file.Children != null, file.Collection, prefix, file.Name)) { Text = file.Name };
+            var prompt = new NamePromptWindow("Rename", file.Children == null ? "Rename file to:" : "Rename folder to:", NamePromptWindow.CreateNameValidator(file.Children != null, file.Collection, file.Collection == this.Package.Metadata, prefix, file.Name))
+            {
+                Text = file.Name,
+                Owner = this
+            };
 
             if (prompt.ShowDialog() == true)
             {
@@ -252,24 +271,25 @@ namespace UniversalPackageExplorer
         }
         private void Content_Delete(object sender, ExecutedRoutedEventArgs e)
         {
-            var file = (UniversalPackageFile)this.FileTree.SelectedItem;
+            var file = this.FileTree.SelectedItem;
 
-            switch (MessageBox.Show(this, $"Are you sure you want to delete '{file.Name}'? This cannot be undone.", file.Children == null ? "Delete file?" : "Delete folder?", MessageBoxButton.YesNo, MessageBoxImage.None, MessageBoxResult.No))
+            var confirm = new ConfirmationWindow(file.Children == null ? "Delete file?" : "Delete folder?", $"Are you sure you want to delete '{file.Name}'? This cannot be undone.")
             {
-                case MessageBoxResult.Yes:
-                    this.OperationsAllowed = false;
-                    Task.Run(async () =>
-                    {
-                        await file.DeleteAsync();
-                        await this.Dispatcher.InvokeAsync(() => this.OperationsAllowed = true);
-                    });
-                    break;
-                default:
-                    break;
+                Owner = this
+            };
+
+            if (confirm.ShowDialog() == true)
+            {
+                this.OperationsAllowed = false;
+                Task.Run(async () =>
+                {
+                    await file.DeleteAsync();
+                    await this.Dispatcher.InvokeAsync(() => this.OperationsAllowed = true);
+                });
             }
         }
 
-        private async Task<UniversalPackageFile> CreateFilePromptAsync(UniversalPackage.FileCollection collection, string prefix, string name)
+        internal async Task<UniversalPackageFile> CreateFilePromptAsync(UniversalPackage.FileCollection collection, string prefix, string name)
         {
             try
             {
@@ -279,7 +299,11 @@ namespace UniversalPackageExplorer
             {
                 name = await this.Dispatcher.InvokeAsync(() =>
                 {
-                    var prompt = new NamePromptWindow("File Name Conflict", "New file name:", ValidateName(false, collection, prefix)) { Text = name };
+                    var prompt = new NamePromptWindow("File Name Conflict", "New file name:", NamePromptWindow.CreateNameValidator(false, collection, collection == this.Package.Metadata, prefix))
+                    {
+                        Text = name,
+                        Owner = this
+                    };
 
                     if (prompt.ShowDialog() == true)
                     {
@@ -298,7 +322,7 @@ namespace UniversalPackageExplorer
             }
         }
 
-        private async Task<UniversalPackageFile> CreateDirectoryPromptAsync(UniversalPackage.FileCollection collection, string prefix, string name)
+        internal async Task<UniversalPackageFile> CreateDirectoryPromptAsync(UniversalPackage.FileCollection collection, string prefix, string name)
         {
             try
             {
@@ -308,7 +332,11 @@ namespace UniversalPackageExplorer
             {
                 name = await this.Dispatcher.InvokeAsync(() =>
                 {
-                    var prompt = new NamePromptWindow("Folder Name Conflict", "New folder name:", ValidateName(true, collection, prefix)) { Text = name };
+                    var prompt = new NamePromptWindow("Folder Name Conflict", "New folder name:", NamePromptWindow.CreateNameValidator(true, collection, collection == this.Package.Metadata, prefix))
+                    {
+                        Text = name,
+                        Owner = this
+                    };
 
                     if (prompt.ShowDialog() == true)
                     {
@@ -325,6 +353,11 @@ namespace UniversalPackageExplorer
 
                 return await collection.CreateDirectoryAsync(prefix + name);
             }
+        }
+
+        private void FocusInTree(UniversalPackageFile file)
+        {
+            this.FileTree.SelectedItem = file;
         }
     }
 }

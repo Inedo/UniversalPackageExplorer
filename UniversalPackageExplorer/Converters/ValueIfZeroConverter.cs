@@ -1,16 +1,20 @@
 ﻿using System;
 using System.Globalization;
-using System.Windows;
 using System.Windows.Data;
 
-namespace UniversalPackageExplorer
+namespace UniversalPackageExplorer.Converters
 {
-    [ValueConversion(typeof(object), typeof(FontStyle))]
-    public sealed class ItalicIfNullConverter : IValueConverter
+    [ValueConversion(typeof(int), typeof(object), ParameterType = typeof(object))]
+    public sealed class ValueIfZeroConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            return value == null ? FontStyles.Italic : FontStyles.Normal;
+            if ((int)value == 0)
+            {
+                return parameter;
+            }
+
+            return null;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

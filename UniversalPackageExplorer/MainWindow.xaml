@@ -4,13 +4,15 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:UniversalPackageExplorer"
+        xmlns:converters="clr-namespace:UniversalPackageExplorer.Converters"
+        xmlns:upack="clr-namespace:UniversalPackageExplorer.UPack"
         mc:Ignorable="d" Height="350" Width="525"
         x:Name="Main" Closing="MainWindow_Closing" Closed="MainWindow_Closed"
         DataContext="{Binding Package, ElementName=Main, Mode=OneWay}"
         Title="{Binding WindowTitlePrefix, StringFormat=\{0\} - Universal Package Explorer, FallbackValue=Universal Package Explorer}">
     <Window.Resources>
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
-        <local:ValueIfNullConverter x:Key="ValueIfNullConverter"/>
+        <converters:ValueIfNullConverter x:Key="ValueIfNullConverter"/>
     </Window.Resources>
     <Window.CommandBindings>
         <CommandBinding Command="local:Commands.New"
@@ -37,6 +39,9 @@
         <CommandBinding Command="local:Commands.OpenFileInWindowsShell"
                         CanExecute="Content_CanOpenFile"
                         Executed="Content_OpenFileInWindowsShell"/>
+        <CommandBinding Command="local:Commands.SaveFileAs"
+                        CanExecute="Content_CanOpenFile"
+                        Executed="Content_SaveFileAs"/>
         <CommandBinding Command="local:Commands.NewFile"
                         Executed="Content_NewFile"/>
         <CommandBinding Command="local:Commands.ExistingFile"
@@ -101,44 +106,7 @@
                 <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition/>
             </Grid.ColumnDefinitions>
-            <TreeView x:Name="FileTree" BorderThickness="0" ContextMenuOpening="FileTree_ContextMenuUnfocus"
-                      AllowDrop="True" Drop="FileTree_Drop" DragOver="FileTree_DragOver">
-                <TreeView.Resources>
-                    <ContextMenu x:Key="TreeFolderContextMenu">
-                        <MenuItem Command="local:Commands.NewFile"/>
-                        <MenuItem Command="local:Commands.ExistingFile"/>
-                        <MenuItem Command="local:Commands.NewFolder"/>
-                        <Separator/>
-                        <MenuItem Command="local:Commands.Rename"/>
-                        <MenuItem Command="local:Commands.Delete"/>
-                    </ContextMenu>
-                    <ContextMenu x:Key="TreeFileContextMenu">
-                        <MenuItem Command="local:Commands.ViewFileContent"/>
-                        <MenuItem Command="local:Commands.OpenFileInWindowsShell"/>
-                        <MenuItem Command="local:Commands.SaveFileAs"/>
-                        <Separator/>
-                        <MenuItem Command="local:Commands.Rename"/>
-                        <MenuItem Command="local:Commands.Delete"/>
-                    </ContextMenu>
-                    <HierarchicalDataTemplate x:Key="FileTreeTemplate" DataType="{x:Type local:UniversalPackageFile}" ItemsSource="{Binding Children}">
-                        <TextBlock DataContext="{Binding}" Text="{Binding Name, Mode=OneWay}" ContextMenuOpening="FileTree_ContextMenuFocus"
-                                   ContextMenu="{Binding Children, Converter={StaticResource ValueIfNullConverter}, ConverterParameter={StaticResource TreeFileContextMenu}, FallbackValue={StaticResource TreeFolderContextMenu}, Mode=OneWay}"
-                                   AllowDrop="True" Drop="FileTree_Drop" DragOver="FileTree_DragOver" MouseLeave="FileTree_MouseLeave"/>
-                    </HierarchicalDataTemplate>
-                </TreeView.Resources>
-                <TreeView.ContextMenu>
-                    <ContextMenu>
-                        <MenuItem Command="local:Commands.NewFile"/>
-                        <MenuItem Command="local:Commands.ExistingFile"/>
-                        <MenuItem Command="local:Commands.NewFolder"/>
-                    </ContextMenu>
-                </TreeView.ContextMenu>
-                <TreeView.Items>
-                    <TreeViewItem Header="Metadata" ItemsSource="{Binding Metadata.Root, Mode=OneWay}" ItemTemplate="{StaticResource FileTreeTemplate}" IsExpanded="True" Focusable="False"
-                                  AllowDrop="True" Drop="FileTree_Drop" DragOver="FileTree_DragOver"/>
-                    <TreeViewItem Header="Files" ItemsSource="{Binding Files.Root, Mode=OneWay}" ItemTemplate="{StaticResource FileTreeTemplate}" IsExpanded="True" Focusable="False"/>
-                </TreeView.Items>
-            </TreeView>
+            <local:FileTree x:Name="FileTree" BorderThickness="0" Package="{Binding}" OperationsAllowed="{Binding OperationsAllowed, ElementName=Main}"/>
             <GridSplitter Width="5" VerticalAlignment="Stretch" HorizontalAlignment="Center" Grid.Column="1"/>
             <local:ManifestEditor Grid.Column="2" Package="{Binding}"/>
         </Grid>

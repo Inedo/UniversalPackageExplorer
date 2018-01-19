@@ -1,12 +1,17 @@
 ﻿using System;
-using System.Text;
 using System.Runtime.InteropServices;
+using System.Text;
+using System.Windows;
+using System.Windows.Interop;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
 
 namespace UniversalPackageExplorer
 {
-    // From https://stackoverflow.com/a/17773402/2664560
     internal static class SafeNativeMethods
     {
+        #region AssocQueryString
+        // From https://stackoverflow.com/a/17773402/2664560
         [DllImport("Shlwapi.dll", CharSet = CharSet.Unicode)]
         public static extern uint AssocQueryString(
             AssocF flags,
@@ -87,5 +92,39 @@ namespace UniversalPackageExplorer
 
             return sb.ToString();
         }
+        #endregion
+
+        #region ExtractAssociatedIcon
+        // Adapted from the System.Drawing .NET reference source
+        [DllImport("Shell32.dll", CharSet = CharSet.Auto, BestFitMapping = false, EntryPoint = "ExtractAssociatedIcon")]
+        public static extern IntPtr ExtractAssociatedIcon(IntPtr hInst, StringBuilder iconPath, ref int index);
+
+        [DllImport("User32.dll", SetLastError = true, ExactSpelling = true, EntryPoint = "DestroyIcon", CharSet = CharSet.Auto)]
+        private static extern bool DestroyIcon(IntPtr hIcon);
+
+        public static ImageSource ExtractAssociatedIcon(string path)
+        {
+            int comma = path.LastIndexOf(',');
+            int index = 0;
+            if (comma != -1)
+            {
+                index = Convert.ToInt32(path.Substring(comma + 1));
+                path = path.Substring(0, comma);
+            }
+
+            var sb = new StringBuilder(260);
+            sb.Append(path);
+
+            var icon = ExtractAssociatedIcon(IntPtr.Zero, sb, ref index);
+            try
+            {
+                return Imaging.CreateBitmapSourceFromHIcon(icon, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
+            }
+            finally
+            {
+                DestroyIcon(icon);
+            }
+        }
+        #endregion
     }
 }

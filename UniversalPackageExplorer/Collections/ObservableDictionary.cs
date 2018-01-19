@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 
-namespace UniversalPackageExplorer
+namespace UniversalPackageExplorer.Collections
 {
     public sealed class ObservableDictionary<TKey, TValue> : IDictionary<TKey, TValue>, IList<KeyValuePair<TKey, TValue>>, INotifyCollectionChanged
     {

@@ -2,8 +2,9 @@
 using System.Globalization;
 using System.Windows.Controls;
 using System.Windows.Data;
+using UniversalPackageExplorer.UPack;
 
-namespace UniversalPackageExplorer
+namespace UniversalPackageExplorer.ValidationRules
 {
     public sealed class DependenciesValidationRule : ValidationRule
     {

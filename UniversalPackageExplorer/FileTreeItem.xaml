@@ -1,0 +1,20 @@
+﻿<UserControl x:Class="UniversalPackageExplorer.FileTreeItem"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:converters="clr-namespace:UniversalPackageExplorer.Converters"
+             mc:Ignorable="d"
+             d:DesignHeight="20" d:DesignWidth="300">
+    <UserControl.Resources>
+        <converters:NameToIconConverter x:Key="NameToIconConverter" />
+        <converters:ValueIfNullConverter x:Key="ValueIfNullConverter" />
+    </UserControl.Resources>
+    <StackPanel Orientation="Horizontal">
+        <Image Source="{Binding Name, Mode=OneWay, Converter={StaticResource NameToIconConverter}}" Height="16" Width="16"
+               Visibility="{Binding Children, Mode=OneWay, Converter={StaticResource ValueIfNullConverter}, ConverterParameter=Visible, FallbackValue=Collapsed}"/>
+        <Image Source="{x:Static converters:NameToIconConverter.FolderIcon}" Height="16" Width="16"
+               Visibility="{Binding Children, Mode=OneWay, Converter={StaticResource ValueIfNullConverter}, ConverterParameter=Collapsed, FallbackValue=Visible}"/>
+        <TextBlock Text="{Binding Name, Mode=OneWay}" Margin="5,1,3,1"/>
+    </StackPanel>
+</UserControl>

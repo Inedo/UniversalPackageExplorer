@@ -4,7 +4,7 @@ using System;
 using System.ComponentModel;
 using System.Text.RegularExpressions;
 
-namespace UniversalPackageExplorer
+namespace UniversalPackageExplorer.UPack
 {
     [JsonConverter(typeof(Converter))]
     public sealed class UniversalPackageDependency : INotifyPropertyChanged, IEquatable<UniversalPackageDependency>

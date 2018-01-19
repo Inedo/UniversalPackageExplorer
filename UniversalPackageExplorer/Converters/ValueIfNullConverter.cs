@@ -2,7 +2,7 @@
 using System.Globalization;
 using System.Windows.Data;
 
-namespace UniversalPackageExplorer
+namespace UniversalPackageExplorer.Converters
 {
     [ValueConversion(typeof(object), typeof(object), ParameterType = typeof(object))]
     public sealed class ValueIfNullConverter : IValueConverter

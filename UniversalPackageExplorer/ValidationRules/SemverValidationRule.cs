@@ -3,7 +3,7 @@ using System.Globalization;
 using System.Windows.Controls;
 using System.Windows.Data;
 
-namespace UniversalPackageExplorer
+namespace UniversalPackageExplorer.ValidationRules
 {
     public sealed class SemverValidationRule : ValidationRule
     {
@@ -11,7 +11,7 @@ namespace UniversalPackageExplorer
         {
             var expr = (BindingExpression)value;
             var text = (string)expr.ResolvedSource?.GetType().GetProperty(expr.ResolvedSourcePropertyName).GetValue(expr.ResolvedSource);
-            if (SemVersion.TryParse(text, out var rubbish))
+            if (!string.IsNullOrEmpty(text) && SemVersion.TryParse(text, out var rubbish))
             {
                 return new ValidationResult(true, null);
             }

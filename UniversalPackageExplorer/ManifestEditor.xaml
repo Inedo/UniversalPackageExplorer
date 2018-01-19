@@ -4,15 +4,18 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:UniversalPackageExplorer"
+             xmlns:converters="clr-namespace:UniversalPackageExplorer.Converters"
+             xmlns:validationrules="clr-namespace:UniversalPackageExplorer.ValidationRules"
+             xmlns:upack="clr-namespace:UniversalPackageExplorer.UPack"
              mc:Ignorable="d" x:Name="Editor"
              d:DesignHeight="300" d:DesignWidth="300">
     <Grid Background="{DynamicResource {x:Static SystemColors.WindowBrushKey}}">
         <Grid.Resources>
-            <local:ItalicIfNullConverter x:Key="ItalicIfNullConverter"/>
-            <local:ValueIfNullConverter x:Key="ValueIfNullConverter"/>
-            <local:ValueIfZeroConverter x:Key="ValueIfZeroConverter"/>
-            <local:MarkdownConverter x:Key="MarkdownConverter"/>
-            <local:DependenciesConverter x:Key="DependenciesConverter"/>
+            <converters:ItalicIfNullConverter x:Key="ItalicIfNullConverter"/>
+            <converters:ValueIfNullConverter x:Key="ValueIfNullConverter"/>
+            <converters:ValueIfZeroConverter x:Key="ValueIfZeroConverter"/>
+            <converters:MarkdownConverter x:Key="MarkdownConverter"/>
+            <converters:DependenciesConverter x:Key="DependenciesConverter"/>
         </Grid.Resources>
         <ScrollViewer Visibility="{Binding ViewModeVisibility, ElementName=Editor, Mode=OneWay}" VerticalScrollBarVisibility="Auto">
             <StackPanel Orientation="Vertical" Margin="0,0,0,25">
@@ -51,7 +54,7 @@
                 </StackPanel>
                 <ItemsControl ItemsSource="{Binding Package.Manifest.Dependencies, ElementName=Editor, Mode=OneWay}" Margin="2">
                     <ItemsControl.ItemTemplate>
-                        <DataTemplate DataType="{x:Type local:UniversalPackageDependency}">
+                        <DataTemplate DataType="{x:Type upack:UniversalPackageDependency}">
                             <Grid>
                                 <StackPanel Orientation="Horizontal" Visibility="{Binding ValidationError, Converter={StaticResource ValueIfNullConverter}, ConverterParameter=Visible, FallbackValue=Collapsed}">
                                     <TextBlock Text="{Binding GroupAndName, Mode=OneWay}" FontWeight="Bold" Margin="0,0,5,0"/>
@@ -80,7 +83,7 @@
                         <TextBox.Text>
                             <Binding Path="Package.Manifest.Group" ElementName="Editor" Mode="TwoWay">
                                 <Binding.ValidationRules>
-                                    <local:TextValidationRule ValidatesOnTargetUpdated="True" ValidationStep="CommittedValue" Name="Group" AllowEmpty="True" AllowedCharacters="0aA-./_" DisallowStartEndCharacters="/" MaxLength="50"/>
+                                    <validationrules:TextValidationRule ValidatesOnTargetUpdated="True" ValidationStep="CommittedValue" Name="Group" AllowEmpty="True" AllowedCharacters="0aA-./_" DisallowStartEndCharacters="/" MaxLength="50"/>
                                 </Binding.ValidationRules>
                             </Binding>
                         </TextBox.Text>
@@ -101,7 +104,7 @@
                         <TextBox.Text>
                             <Binding Path="Package.Manifest.Name" ElementName="Editor" Mode="TwoWay">
                                 <Binding.ValidationRules>
-                                    <local:TextValidationRule ValidatesOnTargetUpdated="True" ValidationStep="CommittedValue" Name="Name" AllowedCharacters="0aA-._" MinLength="1" MaxLength="50"/>
+                                    <validationrules:TextValidationRule ValidatesOnTargetUpdated="True" ValidationStep="CommittedValue" Name="Name" AllowedCharacters="0aA-._" MinLength="1" MaxLength="50"/>
                                 </Binding.ValidationRules>
                             </Binding>
                         </TextBox.Text>
@@ -122,7 +125,7 @@
                         <TextBox.Text>
                             <Binding Path="Package.Manifest.VersionText" ElementName="Editor" Mode="TwoWay">
                                 <Binding.ValidationRules>
-                                    <local:SemverValidationRule ValidatesOnTargetUpdated="True" ValidationStep="CommittedValue"/>
+                                    <validationrules:SemverValidationRule ValidatesOnTargetUpdated="True" ValidationStep="CommittedValue"/>
                                 </Binding.ValidationRules>
                             </Binding>
                         </TextBox.Text>
@@ -143,7 +146,7 @@
                         <TextBox.Text>
                             <Binding Path="Package.Manifest.Title" ElementName="Editor" Mode="TwoWay">
                                 <Binding.ValidationRules>
-                                    <local:TextValidationRule ValidatesOnTargetUpdated="True" ValidationStep="CommittedValue" Name="Title" AllowEmpty="True" MaxLength="50"/>
+                                    <validationrules:TextValidationRule ValidatesOnTargetUpdated="True" ValidationStep="CommittedValue" Name="Title" AllowEmpty="True" MaxLength="50"/>
                                 </Binding.ValidationRules>
                             </Binding>
                         </TextBox.Text>
@@ -164,7 +167,7 @@
                         <TextBox.Text>
                             <Binding Path="Package.Manifest.IconText" ElementName="Editor" Mode="TwoWay">
                                 <Binding.ValidationRules>
-                                    <local:IconValidationRule ValidatesOnTargetUpdated="True" ValidationStep="CommittedValue"/>
+                                    <validationrules:IconValidationRule ValidatesOnTargetUpdated="True" ValidationStep="CommittedValue"/>
                                 </Binding.ValidationRules>
                             </Binding>
                         </TextBox.Text>
@@ -187,7 +190,7 @@
                         <TextBox.Text>
                             <Binding Path="Package.Manifest.Dependencies" ElementName="Editor" Converter="{StaticResource DependenciesConverter}" Mode="TwoWay">
                                 <Binding.ValidationRules>
-                                    <local:DependenciesValidationRule ValidatesOnTargetUpdated="True" ValidationStep="CommittedValue"/>
+                                    <validationrules:DependenciesValidationRule ValidatesOnTargetUpdated="True" ValidationStep="CommittedValue"/>
                                 </Binding.ValidationRules>
                             </Binding>
                         </TextBox.Text>

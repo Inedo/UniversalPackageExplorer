@@ -7,7 +7,7 @@
     <ProjectGuid>{1E546812-AA7F-4CE4-9194-F7EF4E1C90D7}</ProjectGuid>
   </PropertyGroup>
   <PropertyGroup>
-    <ApplicationIcon>upack.ico</ApplicationIcon>
+    <ApplicationIcon>Properties\upack.ico</ApplicationIcon>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -32,10 +32,14 @@
     <OutputType>WinExe</OutputType>
   </PropertyGroup>
   <PropertyGroup>
-    <StartupObject />
+    <StartupObject>UniversalPackageExplorer.App</StartupObject>
+  </PropertyGroup>
+  <PropertyGroup />
+  <PropertyGroup>
+    <NoWin32Manifest>true</NoWin32Manifest>
   </PropertyGroup>
   <ItemGroup>
-    <Content Include="upack.ico" />
+    <Content Include="Properties\upack.ico" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
@@ -50,6 +54,14 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Page Include="FileTree.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="FileTreeItem.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -57,6 +69,10 @@
     <Page Include="ManifestEditor.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="ConfirmationWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
     </Page>
     <Page Include="NamePromptWindow.xaml">
       <SubType>Designer</SubType>
@@ -71,13 +87,23 @@
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
     <Compile Include="Commands.cs" />
-    <Compile Include="ComputedCollection.cs" />
-    <Compile Include="DependenciesConverter.cs" />
-    <Compile Include="DependenciesValidationRule.cs" />
-    <Compile Include="IconValidationRule.cs" />
-    <Compile Include="ItalicIfNullConverter.cs" />
+    <Compile Include="Collections\ComputedCollection.cs" />
+    <Compile Include="Converters\DependenciesConverter.cs" />
+    <Compile Include="Converters\NameToIconConverter.cs" />
+    <Compile Include="FileTree.xaml.cs">
+      <DependentUpon>FileTree.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="FileTreeItem.xaml.cs">
+      <DependentUpon>FileTreeItem.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="ConfirmationWindow.xaml.cs">
+      <DependentUpon>ConfirmationWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UPack\UniversalPackageExtensions.cs" />
+    <Compile Include="ValidationRules\DependenciesValidationRule.cs" />
+    <Compile Include="ValidationRules\IconValidationRule.cs" />
+    <Compile Include="Converters\ItalicIfNullConverter.cs" />
     <Compile Include="MainWindow.Content.cs" />
-    <Compile Include="MainWindow.DragDrop.cs" />
     <Compile Include="MainWindow.File.cs" />
     <Compile Include="MainWindow.Help.cs" />
     <Compile Include="MainWindow.xaml.cs">
@@ -86,19 +112,22 @@
     <Compile Include="ManifestEditor.xaml.cs">
       <DependentUpon>ManifestEditor.xaml</DependentUpon>
     </Compile>
-    <Compile Include="MarkdownConverter.cs" />
-    <Compile Include="NamePromptWindow.xaml.cs" />
-    <Compile Include="ObservableDictionary.cs" />
+    <Compile Include="Converters\MarkdownConverter.cs" />
+    <Compile Include="NamePromptWindow.xaml.cs">
+      <DependentUpon>NamePromptWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Collections\ObservableDictionary.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SafeNativeMethods.cs" />
-    <Compile Include="SemverValidationRule.cs" />
-    <Compile Include="TextValidationRule.cs" />
-    <Compile Include="UniversalPackage.cs" />
-    <Compile Include="UniversalPackageDependency.cs" />
-    <Compile Include="UniversalPackageFile.cs" />
-    <Compile Include="UniversalPackageManifest.cs" />
-    <Compile Include="ValueIfNullConverter.cs" />
-    <Compile Include="ValueIfZeroConverter.cs" />
+    <Compile Include="ValidationRules\SemverValidationRule.cs" />
+    <Compile Include="ValidationRules\TextValidationRule.cs" />
+    <Compile Include="UPack\UniversalPackage.cs" />
+    <Compile Include="UPack\UniversalPackageDependency.cs" />
+    <Compile Include="UPack\UniversalPackageFile.cs" />
+    <Compile Include="UPack\UniversalPackageManifest.cs" />
+    <Compile Include="Converters\ValueIfNullConverter.cs" />
+    <Compile Include="Converters\ValueIfZeroConverter.cs" />
+    <Compile Include="WindowsRegistry.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="CommonMark, Version=0.1.0.0, Culture=neutral, PublicKeyToken=001ef8810438905d, processorArchitecture=MSIL">
