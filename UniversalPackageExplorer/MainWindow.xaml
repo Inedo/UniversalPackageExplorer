@@ -31,6 +31,8 @@
                         Executed="File_SaveAs"/>
         <CommandBinding Command="local:Commands.Publish"
                         CanExecute="File_CanPublish"/>
+        <CommandBinding Command="local:Commands.OpenRecentFile"
+                        Executed="File_OpenRecentFile"/>
         <CommandBinding Command="local:Commands.Exit"
                         Executed="File_Exit"/>
         <CommandBinding Command="local:Commands.ViewFileContent"
@@ -66,7 +68,7 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition/>
         </Grid.RowDefinitions>
-        <Menu IsEnabled="{Binding OperationsAllowed, ElementName=Main, Mode=OneWay}">
+        <Menu IsEnabled="{Binding OperationsAllowed, ElementName=Main, Mode=OneWay}" IsMainMenu="True">
             <MenuItem Header="_File">
                 <MenuItem Command="local:Commands.New"/>
                 <MenuItem Command="local:Commands.Open"/>
@@ -78,7 +80,15 @@
                 <MenuItem Command="local:Commands.SaveAs"/>
                 <Separator/>
                 <MenuItem Command="local:Commands.Publish"/>
-                <MenuItem Header="_Recent Files" StaysOpenOnClick="True" IsEnabled="{Binding JumpItems.Count}" ItemsSource="{Binding JumpItems}" DataContext="{Binding RecentFiles, ElementName=Main, Mode=OneWay}"/>
+                <MenuItem Header="_Recent Files" StaysOpenOnClick="True" IsEnabled="{Binding Count}" ItemsSource="{Binding}" DataContext="{Binding RecentFiles, ElementName=Main, Mode=OneWay}">
+                    <MenuItem.ItemContainerStyle>
+                        <Style TargetType="MenuItem">
+                            <Setter Property="Header" Value="{Binding DisplayName}"/>
+                            <Setter Property="Command" Value="local:Commands.OpenRecentFile"/>
+                            <Setter Property="CommandParameter" Value="{Binding Path}"/>
+                        </Style>
+                    </MenuItem.ItemContainerStyle>
+                </MenuItem>
                 <Separator/>
                 <MenuItem Command="local:Commands.Exit"/>
             </MenuItem>

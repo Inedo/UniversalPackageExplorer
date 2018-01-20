@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Reflection;
@@ -50,7 +51,7 @@ namespace UniversalPackageExplorer
         }
         public bool IsPackageOpen => this.Package != null;
 
-        public JumpList RecentFiles => JumpList.GetJumpList(Application.Current);
+        public List<RecentItem> RecentFiles => WindowsRegistry.GetRecentItems();
 
         private bool operationsAllowed = true;
         public bool OperationsAllowed

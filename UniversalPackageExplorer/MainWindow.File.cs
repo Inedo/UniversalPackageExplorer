@@ -1,5 +1,6 @@
 ﻿using Microsoft.Win32;
 using System;
+using System.IO;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
@@ -131,6 +132,18 @@ namespace UniversalPackageExplorer
         private void File_Publish(object sender, ExecutedRoutedEventArgs e)
         {
             throw new NotImplementedException();
+        }
+
+        private async void File_OpenRecentFile(object sender, ExecutedRoutedEventArgs e)
+        {
+            if (!this.PromptUnsaved())
+            {
+                return;
+            }
+
+            var path = (string)e.Parameter;
+            this.Package = await UniversalPackage.CreateAsync(path);
+            this.AddRecentFile(path);
         }
 
         private void File_Exit(object sender, RoutedEventArgs e)
