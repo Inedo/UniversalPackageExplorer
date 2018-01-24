@@ -19,7 +19,8 @@
                         Executed="File_New"/>
         <CommandBinding Command="local:Commands.Open"
                         Executed="File_Open"/>
-        <CommandBinding Command="local:Commands.OpenFromFeed"/>
+        <CommandBinding Command="local:Commands.OpenFromFeed"
+                        Executed="File_OpenFromFeed"/>
         <CommandBinding Command="local:Commands.Close"
                         CanExecute="File_CanClose"
                         Executed="File_Close"/>

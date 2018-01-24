@@ -58,7 +58,25 @@ namespace UniversalPackageExplorer
                 return;
             }
 
-            throw new NotImplementedException();
+            var dialog = new OpenFromFeedWindow
+            {
+                Owner = this
+            };
+
+            if (dialog.ShowDialog() == true)
+            {
+                this.OperationsAllowed = false;
+                Task.Run(async () =>
+                {
+                    var package = await dialog.DownloadAsync();
+
+                    await this.Dispatcher.InvokeAsync(() =>
+                    {
+                        this.Package = package;
+                        this.OperationsAllowed = true;
+                    });
+                });
+            }
         }
         private void File_CanClose(object sender, CanExecuteRoutedEventArgs e)
         {
@@ -103,6 +121,7 @@ namespace UniversalPackageExplorer
                 ValidateNames = true,
                 OverwritePrompt = true,
                 AddExtension = true,
+                FileName = $"{this.Package.Manifest.Name}-{this.Package.Manifest.VersionText}.upack",
                 DefaultExt = ".upack",
                 Filter = "UPack files (*.upack)|*.upack|All files (*.*)|*.*"
             };

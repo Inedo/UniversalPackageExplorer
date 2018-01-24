@@ -54,6 +54,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Page Include="OpenFromFeedWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="FileTree.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -88,6 +92,9 @@
     </Compile>
     <Compile Include="Commands.cs" />
     <Compile Include="Collections\ComputedCollection.cs" />
+    <Compile Include="OpenFromFeedWindow.xaml.cs">
+      <DependentUpon>OpenFromFeedWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Converters\DependenciesConverter.cs" />
     <Compile Include="Converters\NameToIconConverter.cs" />
     <Compile Include="FileTree.xaml.cs">
@@ -99,7 +106,9 @@
     <Compile Include="ConfirmationWindow.xaml.cs">
       <DependentUpon>ConfirmationWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="UPack\UniversalPackageEndpoint.cs" />
     <Compile Include="UPack\UniversalPackageExtensions.cs" />
+    <Compile Include="UPack\UniversalPackageInfo.cs" />
     <Compile Include="ValidationRules\DependenciesValidationRule.cs" />
     <Compile Include="ValidationRules\IconValidationRule.cs" />
     <Compile Include="Converters\ItalicIfNullConverter.cs" />
@@ -127,6 +136,7 @@
     <Compile Include="UPack\UniversalPackageManifest.cs" />
     <Compile Include="Converters\ValueIfNullConverter.cs" />
     <Compile Include="Converters\ValueIfZeroConverter.cs" />
+    <Compile Include="ValidationRules\UPackEndpointValidationRule.cs" />
     <Compile Include="WindowsRegistry.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -146,6 +156,7 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.IO.Compression" />
+    <Reference Include="System.Net.Http" />
     <Reference Include="System.ValueTuple, Version=4.0.2.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>..\packages\System.ValueTuple.4.4.0\lib\netstandard1.0\System.ValueTuple.dll</HintPath>
     </Reference>
