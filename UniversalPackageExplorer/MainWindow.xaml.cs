@@ -102,9 +102,11 @@ namespace UniversalPackageExplorer
 
         private void MainWindow_Closing(object sender, CancelEventArgs e)
         {
-            if (!this.PromptUnsaved())
+            e.Cancel = true;
+
+            if (this.PromptUnsaved())
             {
-                e.Cancel = true;
+                e.Cancel = false;
             }
         }
 

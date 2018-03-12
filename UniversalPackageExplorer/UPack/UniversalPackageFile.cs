@@ -7,17 +7,49 @@ using System.Threading.Tasks;
 
 namespace UniversalPackageExplorer.UPack
 {
-    public sealed class UniversalPackageFile : INotifyPropertyChanged
+    public sealed class UniversalPackageFile : MarshalByRefObject, INotifyPropertyChanged
     {
-        private ZipArchiveEntry entry;
-
-        internal UniversalPackageFile(UniversalPackage.FileCollection collection, string fullName, ZipArchiveEntry entry)
+        internal UniversalPackageFile(UniversalPackage.FileCollection collection, string fullName)
         {
             this.Collection = collection;
             this.FullName = fullName;
-            this.Length = entry.Length;
-            this.entry = entry;
             this.children = new Lazy<UniversalPackage.FileCollection.SubTreeCollection>(() => fullName.EndsWith("/", StringComparison.OrdinalIgnoreCase) ? new UniversalPackage.FileCollection.SubTreeCollection(collection, fullName) : null);
+        }
+
+        private T EntryRead<T>(Func<ZipArchiveEntry, T> func)
+        {
+            using (var zip = this.Collection.package.OpenRead())
+            {
+                return func(zip.GetEntry(this.Collection.Prefix + this.FullName));
+            }
+        }
+        private async Task<T> EntryReadAsync<T>(Func<ZipArchiveEntry, Task<T>> func)
+        {
+            using (var zip = this.Collection.package.OpenRead())
+            {
+                return await func(zip.GetEntry(this.Collection.Prefix + this.FullName));
+            }
+        }
+        private async Task EntryReadAsync(Func<ZipArchiveEntry, Task> func)
+        {
+            using (var zip = this.Collection.package.OpenRead())
+            {
+                await func(zip.GetEntry(this.Collection.Prefix + this.FullName));
+            }
+        }
+        private void EntryWrite(Action<ZipArchiveEntry> func)
+        {
+            using (var zip = this.Collection.package.OpenWrite())
+            {
+                func(zip.GetEntry(this.Collection.Prefix + this.FullName) ?? zip.CreateEntry(this.Collection.Prefix + this.FullName, this.Children == null ? CompressionLevel.Optimal : CompressionLevel.NoCompression));
+            }
+        }
+        private async Task EntryWriteAsync(Func<ZipArchiveEntry, Task> func)
+        {
+            using (var zip = this.Collection.package.OpenWrite())
+            {
+                await func(zip.GetEntry(this.Collection.Prefix + this.FullName) ?? zip.CreateEntry(this.Collection.Prefix + this.FullName, this.Children == null ? CompressionLevel.Optimal : CompressionLevel.NoCompression));
+            }
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
@@ -41,13 +73,14 @@ namespace UniversalPackageExplorer.UPack
                 return this.FullName.Substring(i).Trim('/');
             }
         }
-        public long Length { get; private set; }
+        public long Length => this.EntryRead(e => e.Length);
         public DateTimeOffset LastWriteTime
         {
-            get => this.entry.LastWriteTime;
+            get => this.EntryRead(e => e.LastWriteTime);
+
             set
             {
-                this.entry.LastWriteTime = value;
+                this.EntryWrite(e => e.LastWriteTime = value);
                 this.Collection.package.Dirty = true;
                 this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(LastWriteTime)));
             }
@@ -67,24 +100,25 @@ namespace UniversalPackageExplorer.UPack
 
         internal void DeleteInternal()
         {
-            this.entry.Delete();
+            using (var zip = this.Collection.package.OpenWrite())
+            {
+                zip.GetEntry(this.Collection.Prefix + this.FullName)?.Delete();
+            }
         }
 
-        internal async Task RenameToAsync(string fullName, ZipArchiveEntry newEntry)
+        internal async Task RenameToAsync(string fullName, ZipArchiveEntry oldEntry, ZipArchiveEntry newEntry)
         {
             if (!this.FullName.EndsWith("/", StringComparison.OrdinalIgnoreCase))
             {
-                using (var input = this.entry.Open())
+                using (var input = oldEntry.Open())
                 using (var output = newEntry.Open())
                 {
                     await input.CopyToAsync(output);
                 }
             }
 
-            newEntry.LastWriteTime = this.entry.LastWriteTime;
-
-            this.entry.Delete();
-            this.entry = newEntry;
+            newEntry.LastWriteTime = oldEntry.LastWriteTime;
+            oldEntry.Delete();
 
             this.FullName = fullName;
             this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(FullName)));
@@ -103,12 +137,15 @@ namespace UniversalPackageExplorer.UPack
         {
             this.EnsureNotDirectory();
 
-            using (var memory = new MemoryStream())
-            using (var stream = this.entry.Open())
+            return this.EntryRead(e =>
             {
-                stream.CopyTo(memory);
-                return memory.ToArray();
-            }
+                using (var memory = new MemoryStream())
+                using (var stream = e.Open())
+                {
+                    stream.CopyTo(memory);
+                    return memory.ToArray();
+                }
+            });
         }
 
         public Stream OpenRead()
@@ -125,22 +162,27 @@ namespace UniversalPackageExplorer.UPack
         {
             this.EnsureNotDirectory();
 
-            using (var input = this.entry.Open())
+            await this.EntryReadAsync(async e =>
             {
-                await input.CopyToAsync(stream);
-            }
+                using (var input = e.Open())
+                {
+                    await input.CopyToAsync(stream);
+                }
+            });
         }
 
         private void CopyFrom(Stream stream)
         {
             this.EnsureNotDirectory();
 
-            using (var output = this.entry.Open())
+            this.EntryWrite(e =>
             {
-                output.SetLength(0);
-                stream.CopyTo(output);
-                this.Length = output.Length;
-            }
+                using (var output = e.Open())
+                {
+                    output.SetLength(0);
+                    stream.CopyTo(output);
+                }
+            });
 
             this.LastWriteTime = DateTimeOffset.UtcNow;
             this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Length)));
@@ -150,12 +192,14 @@ namespace UniversalPackageExplorer.UPack
         {
             this.EnsureNotDirectory();
 
-            using (var output = this.entry.Open())
+            await this.EntryWriteAsync(async e =>
             {
-                output.SetLength(0);
-                await stream.CopyToAsync(output);
-                this.Length = output.Length;
-            }
+                using (var output = e.Open())
+                {
+                    output.SetLength(0);
+                    await stream.CopyToAsync(output);
+                }
+            });
 
             this.LastWriteTime = DateTimeOffset.UtcNow;
             this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Length)));

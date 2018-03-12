@@ -88,12 +88,12 @@ namespace UniversalPackageExplorer
                     return null;
                 }
 
-                if (!string.Equals(uri.Scheme, "package", StringComparison.OrdinalIgnoreCase))
+                if (!this.Package.Manifest.IconText.StartsWith("package://", StringComparison.OrdinalIgnoreCase))
                 {
                     return (ImageSource)new ImageSourceConverter().ConvertFrom(null, CultureInfo.InvariantCulture, uri);
                 }
 
-                if (!this.Package.Files.TryGetValue(uri.GetLeftPart(UriPartial.Authority), out var file))
+                if (!this.Package.Files.TryGetValue(this.Package.Manifest.IconText.Substring("package://".Length), out var file))
                 {
                     return null;
                 }

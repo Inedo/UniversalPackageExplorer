@@ -71,7 +71,7 @@ namespace UniversalPackageExplorer
             }
             if (this.Tree.SelectedItem != null)
             {
-                this.GetInTree((UniversalPackageFile)this.Tree.SelectedItem).IsSelected = false;
+                this.GetInTree((UniversalPackageFile)((TreeViewItem)this.Tree.SelectedItem).DataContext).IsSelected = false;
             }
         }
 
@@ -126,9 +126,9 @@ namespace UniversalPackageExplorer
                 e.Handled = false;
                 return;
             }
-            else if (e.Data.GetDataPresent(typeof(UniversalPackageFile)))
+            else if (e.Data.GetDataPresent(typeof(UniversalPackageFile).FullName))
             {
-                var file = (UniversalPackageFile)e.Data.GetData(typeof(UniversalPackageFile));
+                var file = (UniversalPackageFile)e.Data.GetData(typeof(UniversalPackageFile).FullName);
                 if (file.Collection != collection)
                 {
                     e.Effects = DragDropEffects.Copy;
@@ -220,7 +220,7 @@ namespace UniversalPackageExplorer
 
                 async Task<UniversalPackageFile> addFile(string namePrefix, FileInfo info)
                 {
-                    var file = await MainWindow.Instance.CreateFilePromptAsync(collection, namePrefix, info.Name);
+                    var file = await (await this.Dispatcher.InvokeAsync(() => MainWindow.Instance)).CreateFilePromptAsync(collection, namePrefix, info.Name);
                     if (file == null)
                     {
                         return null;
@@ -279,8 +279,8 @@ namespace UniversalPackageExplorer
         {
             if (e.LeftButton == MouseButtonState.Pressed)
             {
-                var panel = (FileTreeItem)e.Source;
-                var file = (UniversalPackageFile)panel.DataContext;
+                var file = (UniversalPackageFile)this.Tree.SelectedItem;
+                var panel = this.GetInTree(file);
                 var dataObject = new DataObject(typeof(UniversalPackageFile).FullName, file, false);
                 this.OperationsAllowed = false;
                 Task.Run(async () =>
@@ -290,13 +290,7 @@ namespace UniversalPackageExplorer
                     await this.Dispatcher.InvokeAsync(() =>
                     {
                         this.OperationsAllowed = true;
-                        try
-                        {
-                            DragDrop.DoDragDrop(panel, dataObject, DragDropEffects.All);
-                        }
-                        catch
-                        {
-                        }
+                        DragDrop.DoDragDrop(panel, dataObject, DragDropEffects.All);
                     });
                 });
             }

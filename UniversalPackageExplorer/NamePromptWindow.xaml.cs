@@ -49,7 +49,7 @@ namespace UniversalPackageExplorer
                 if (this.validationError != value)
                 {
                     this.validationError = value;
-                    this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(ValidationError));
+                    this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ValidationError)));
                 }
             }
         }

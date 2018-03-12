@@ -34,7 +34,6 @@ namespace UniversalPackageExplorer.UPack
         private UniversalPackage(FileStream tempFile)
         {
             this.tempFile = tempFile;
-            this.zip = new ZipArchive(this.tempFile, ZipArchiveMode.Update, true);
             this.Files = new FileCollection(this, false);
             this.Metadata = new FileCollection(this, true);
             this.manifest = new Lazy<UniversalPackageManifest>(() =>
@@ -148,7 +147,21 @@ namespace UniversalPackageExplorer.UPack
         public bool IsTemporary => string.IsNullOrEmpty(this.FullName) || Path.GetFullPath(this.FullName).StartsWith(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData));
 
         private readonly FileStream tempFile;
-        private readonly ZipArchive zip;
+        internal ZipArchive OpenRead()
+        {
+            if (this.tempFile.Length == 0)
+            {
+                return new ZipArchive(new MemoryStream(), ZipArchiveMode.Update, false);
+            }
+
+            this.tempFile.Position = 0;
+            return new ZipArchive(this.tempFile, ZipArchiveMode.Read, true);
+        }
+        internal ZipArchive OpenWrite()
+        {
+            this.tempFile.Position = 0;
+            return new ZipArchive(this.tempFile, ZipArchiveMode.Update, true);
+        }
 
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -165,7 +178,6 @@ namespace UniversalPackageExplorer.UPack
 
         public void Dispose()
         {
-            this.zip.Dispose();
             this.tempFile.Dispose();
         }
 
@@ -215,17 +227,21 @@ namespace UniversalPackageExplorer.UPack
             private readonly bool isMetadata;
             private readonly SortedList<string, UniversalPackageFile> files;
             public SubTreeCollection Root { get; }
+            internal string Prefix => this.isMetadata ? "" : "package/";
 
             internal FileCollection(UniversalPackage package, bool isMetadata)
             {
                 this.package = package;
                 this.isMetadata = isMetadata;
 
-                var files = from entry in this.package.zip.Entries
-                            let name = CleanPath(entry.FullName)
-                            where name.StartsWith("package/", StringComparison.OrdinalIgnoreCase) != this.isMetadata
-                            select new UniversalPackageFile(this, name.Substring(this.isMetadata ? 0 : "package/".Length), entry);
-                this.files = new SortedList<string, UniversalPackageFile>(files.ToDictionary(f => f.FullName), StringComparer.OrdinalIgnoreCase);
+                using (var zip = this.package.OpenRead())
+                {
+                    var files = from entry in zip.Entries
+                                let name = CleanPath(entry.FullName)
+                                where name.StartsWith("package/", StringComparison.OrdinalIgnoreCase) != this.isMetadata
+                                select new UniversalPackageFile(this, name.Substring(this.Prefix.Length));
+                    this.files = new SortedList<string, UniversalPackageFile>(files.ToDictionary(f => f.FullName), StringComparer.OrdinalIgnoreCase);
+                }
 
                 var directories = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
                 if (!this.isMetadata)
@@ -246,7 +262,7 @@ namespace UniversalPackageExplorer.UPack
                 {
                     if (!this.ContainsKey(dir))
                     {
-                        this.files.Add(dir, new UniversalPackageFile(this, dir, this.package.zip.CreateEntry(this.isMetadata ? dir : "package/" + dir, CompressionLevel.NoCompression)));
+                        this.files.Add(dir, new UniversalPackageFile(this, dir));
                     }
                 }
 
@@ -352,19 +368,32 @@ namespace UniversalPackageExplorer.UPack
                 var added = new List<UniversalPackageFile> { file };
                 int firstIndex = this.files.IndexOfKey(file.FullName);
 
-                int lastSlash = file.FullName.LastIndexOf('/', file.FullName.Length -  2);
-                while (lastSlash != -1)
+                var zip = new Lazy<ZipArchive>(() => this.package.OpenWrite());
+                try
                 {
-                    var parentName = file.FullName.Substring(0, lastSlash + 1);
-                    if (this.files.ContainsKey(parentName))
+                    int lastSlash = file.FullName.LastIndexOf('/', file.FullName.Length - 2);
+                    while (lastSlash != -1)
                     {
-                        break;
-                    }
+                        var parentName = file.FullName.Substring(0, lastSlash + 1);
+                        if (this.files.ContainsKey(parentName))
+                        {
+                            break;
+                        }
 
-                    var parent = new UniversalPackageFile(this, parentName, this.package.zip.CreateEntry(this.isMetadata ? parentName : "package/" + parentName, CompressionLevel.NoCompression));
-                    this.files.Add(parentName, parent);
-                    added.Add(parent);
-                    lastSlash = file.FullName.LastIndexOf('/', lastSlash - 1);
+                        zip.Value.CreateEntry(this.Prefix + parentName, CompressionLevel.NoCompression);
+
+                        var parent = new UniversalPackageFile(this, parentName);
+                        this.files.Add(parentName, parent);
+                        added.Add(parent);
+                        lastSlash = file.FullName.LastIndexOf('/', lastSlash - 1);
+                    }
+                }
+                finally
+                {
+                    if (zip.IsValueCreated)
+                    {
+                        zip.Value.Dispose();
+                    }
                 }
 
                 added.Reverse();
@@ -419,7 +448,12 @@ namespace UniversalPackageExplorer.UPack
                     throw new ArgumentException("Cannot create a metadata file with the path 'package'.", nameof(fullName));
                 }
 
-                var file = new UniversalPackageFile(this, fullName, this.package.zip.CreateEntry(this.isMetadata ? fullName : "package/" + fullName, CompressionLevel.Optimal));
+                using (var zip = this.package.OpenWrite())
+                {
+                    zip.CreateEntry(this.Prefix + fullName, CompressionLevel.Optimal);
+                }
+
+                var file = new UniversalPackageFile(this, fullName);
                 this.AddWithParents(file);
 
                 return Task.FromResult(file);
@@ -441,7 +475,12 @@ namespace UniversalPackageExplorer.UPack
                     throw new ArgumentException("Cannot create a metadata directory with a name starting with 'package/'.", nameof(fullName));
                 }
 
-                directory = new UniversalPackageFile(this, fullName, this.package.zip.CreateEntry(this.isMetadata ? fullName : "package/" + fullName, CompressionLevel.NoCompression));
+                using (var zip = this.package.OpenWrite())
+                {
+                    zip.CreateEntry(this.Prefix + fullName, CompressionLevel.NoCompression);
+                }
+
+                directory = new UniversalPackageFile(this, fullName);
                 this.AddWithParents(directory);
 
                 return Task.FromResult(directory);
@@ -486,7 +525,10 @@ namespace UniversalPackageExplorer.UPack
                 int oldIndex = this.files.IndexOfKey(oldName);
                 this.files.RemoveAt(oldIndex);
 
-                await file.RenameToAsync(newName, this.package.zip.CreateEntry(this.isMetadata ? newName : "package/" + newName, CompressionLevel.Optimal));
+                using (var zip = this.package.OpenWrite())
+                {
+                    await file.RenameToAsync(newName, zip.GetEntry(this.Prefix + oldName), zip.CreateEntry(this.Prefix + newName, CompressionLevel.Optimal));
+                }
 
                 this.files.Add(newName, file);
 
@@ -504,11 +546,14 @@ namespace UniversalPackageExplorer.UPack
                     this.files.RemoveAt(oldIndex);
                 }
 
-                foreach (var f in moved)
+                using (var zip = this.package.OpenWrite())
                 {
-                    var fullName = newName + f.FullName.Substring(oldName.Length);
-                    await f.RenameToAsync(fullName, this.package.zip.CreateEntry(fullName, fullName.EndsWith("/", StringComparison.OrdinalIgnoreCase) ? CompressionLevel.NoCompression : CompressionLevel.Optimal));
-                    this.files.Add(fullName, f);
+                    foreach (var f in moved)
+                    {
+                        var fullName = newName + f.FullName.Substring(oldName.Length);
+                        await f.RenameToAsync(fullName, zip.GetEntry(this.Prefix + f.FullName), zip.CreateEntry(this.Prefix + fullName, fullName.EndsWith("/", StringComparison.OrdinalIgnoreCase) ? CompressionLevel.NoCompression : CompressionLevel.Optimal));
+                        this.files.Add(fullName, f);
+                    }
                 }
 
                 int newIndex = this.files.IndexOfKey(newName);
@@ -593,7 +638,7 @@ namespace UniversalPackageExplorer.UPack
                         var removed = e.OldItems.Cast<UniversalPackageFile>().Where(IsDirectChild);
                         foreach (var r in removed)
                         {
-                            this.CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, r, indexOfName(r.FullName, e.NewItems[0])));
+                            this.CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, r, indexOfName(r.FullName, e.OldItems[0])));
                         }
                     }
 

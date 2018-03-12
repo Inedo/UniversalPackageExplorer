@@ -27,9 +27,10 @@ namespace UniversalPackageExplorer.ValidationRules
                 return new ValidationResult(true, null);
             }
 
-            if (uri.Scheme == "package")
+            if (text.StartsWith("package://"))
             {
-                if (((MainWindow)Application.Current.MainWindow).Package.Files.ContainsKey(uri.GetLeftPart(UriPartial.Authority)))
+                var path = uri.OriginalString.Substring("package://".Length);
+                if (((MainWindow)Application.Current.MainWindow).Package.Files.ContainsKey(path))
                 {
                     return new ValidationResult(true, null);
                 }

@@ -16,6 +16,19 @@ namespace UniversalPackageExplorer
         }
 
         public string Prompt { get; }
+        private bool WasCancelled = false;
+
+        public new bool? ShowDialog()
+        {
+            var result = base.ShowDialog();
+
+            if (this.WasCancelled)
+            {
+                return null;
+            }
+
+            return result;
+        }
 
         private void Button_Yes(object sender, RoutedEventArgs e)
         {
@@ -31,6 +44,7 @@ namespace UniversalPackageExplorer
 
         private void Button_Cancel(object sender, RoutedEventArgs e)
         {
+            this.WasCancelled = true;
             this.DialogResult = null;
             this.Close();
         }
