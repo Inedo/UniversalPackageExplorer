@@ -40,10 +40,15 @@
   </PropertyGroup>
   <ItemGroup>
     <Content Include="Properties\upack.ico" />
+    <None Include="Resources\Fonts\OFL.txt" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
     <None Include="packages.config" />
+    <Resource Include="Resources\Fonts\Karla-Bold.ttf" />
+    <Resource Include="Resources\Fonts\Karla-BoldItalic.ttf" />
+    <Resource Include="Resources\Fonts\Karla-Italic.ttf" />
+    <Resource Include="Resources\Fonts\Karla-Regular.ttf" />
   </ItemGroup>
   <ItemGroup>
     <Page Include="AboutWindow.xaml">
