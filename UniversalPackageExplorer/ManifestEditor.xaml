@@ -8,68 +8,100 @@
              xmlns:validationrules="clr-namespace:UniversalPackageExplorer.ValidationRules"
              xmlns:upack="clr-namespace:UniversalPackageExplorer.UPack"
              mc:Ignorable="d" x:Name="Editor"
-             d:DesignHeight="300" d:DesignWidth="300">
-    <Grid Background="{DynamicResource {x:Static SystemColors.WindowBrushKey}}">
+             d:DesignHeight="300" d:DesignWidth="300"
+             FontFamily="./Resources/Fonts/#Karla">
+    <Grid Background="White">
         <Grid.Resources>
             <converters:ItalicIfNullConverter x:Key="ItalicIfNullConverter"/>
             <converters:ValueIfNullConverter x:Key="ValueIfNullConverter"/>
             <converters:ValueIfZeroConverter x:Key="ValueIfZeroConverter"/>
             <converters:MarkdownConverter x:Key="MarkdownConverter"/>
             <converters:DependenciesConverter x:Key="DependenciesConverter"/>
+            <Style x:Key="PropertyNameStyle" TargetType="TextBlock">
+                <Setter Property="FontWeight" Value="Bold"/>
+                <Setter Property="Foreground" Value="#282B3A"/>
+                <Setter Property="FontFamily" Value="./Resources/Fonts/#Karla"/>
+            </Style>
+            <Style x:Key="PropertyNameLabelStyle" TargetType="Label">
+                <Setter Property="FontWeight" Value="Bold"/>
+                <Setter Property="Foreground" Value="#282B3A"/>
+                <Setter Property="Padding" Value="0"/>
+                <Setter Property="FontFamily" Value="./Resources/Fonts/#Karla"/>
+            </Style>
+            <Style x:Key="FallbackTextBlockStyle" TargetType="local:FallbackTextBlock">
+                <Setter Property="FallbackForeground" Value="#8689A1" />
+                <Setter Property="Foreground" Value="#282B3A" />
+                <Setter Property="FontFamily" Value="./Resources/Fonts/#Karla"/>
+            </Style>
+            <Style x:Key="HintTextStyle" TargetType="TextBlock">
+                <Setter Property="Foreground" Value="#8689A1" />
+                <Setter Property="FontStyle" Value="Italic"/>
+                <Setter Property="FontFamily" Value="./Resources/Fonts/#Karla"/>
+            </Style>
         </Grid.Resources>
+        <Grid.RowDefinitions>
+            <RowDefinition/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
         <ScrollViewer Visibility="{Binding ViewModeVisibility, ElementName=Editor, Mode=OneWay}" VerticalScrollBarVisibility="Auto">
-            <StackPanel Orientation="Vertical" Margin="0,0,0,25">
-                <StackPanel Orientation="Horizontal" Margin="2">
-                    <TextBlock Text="Group: " FontWeight="Bold"/>
-                    <TextBlock Text="{Binding Package.Manifest.Group, TargetNullValue=(no group name), ElementName=Editor, Mode=OneWay}" FontStyle="{Binding Package.Manifest.Group, Converter={StaticResource ItalicIfNullConverter}, ElementName=Editor, Mode=OneWay}"/>
+            <StackPanel Orientation="Vertical">
+                <StackPanel Orientation="Horizontal" Margin="10 5">
+                    <TextBlock Text="Group: " Style="{StaticResource PropertyNameStyle}"/>
+                    <local:FallbackTextBlock Text="{Binding Package.Manifest.Group, ElementName=Editor, Mode=OneWay}" FallbackText="(no group name)" Style="{StaticResource FallbackTextBlockStyle}"/>
                 </StackPanel>
-                <StackPanel Orientation="Horizontal" Margin="2">
-                    <TextBlock Text="Name: " FontWeight="Bold"/>
-                    <TextBlock Text="{Binding Package.Manifest.Name, ElementName=Editor, Mode=OneWay}"/>
+                <StackPanel Orientation="Horizontal" Margin="10 5">
+                    <TextBlock Text="Name: " Style="{StaticResource PropertyNameStyle}"/>
+                    <local:FallbackTextBlock Text="{Binding Package.Manifest.Name, ElementName=Editor, Mode=OneWay}" FallbackText="(missing name)" Style="{StaticResource FallbackTextBlockStyle}"/>
                 </StackPanel>
-                <StackPanel Orientation="Horizontal" Margin="2">
-                    <TextBlock Text="Version: " FontWeight="Bold"/>
-                    <TextBlock Text="{Binding Package.Manifest.VersionText, ElementName=Editor, Mode=OneWay}"/>
+                <StackPanel Orientation="Horizontal" Margin="10 5">
+                    <TextBlock Text="Version: " Style="{StaticResource PropertyNameStyle}"/>
+                    <local:FallbackTextBlock Text="{Binding Package.Manifest.VersionText, ElementName=Editor, Mode=OneWay}" FallbackText="(missing version number)" Style="{StaticResource FallbackTextBlockStyle}"/>
                 </StackPanel>
-                <StackPanel Orientation="Horizontal" Margin="2">
-                    <TextBlock Text="Title: " FontWeight="Bold"/>
-                    <TextBlock Text="{Binding Package.Manifest.Title, TargetNullValue=(no title), ElementName=Editor, Mode=OneWay}" FontStyle="{Binding Package.Manifest.Title, Converter={StaticResource ItalicIfNullConverter}, ElementName=Editor, Mode=OneWay}"/>
-                </StackPanel>
-
-                <StackPanel Orientation="Horizontal" Margin="2">
-                    <TextBlock Text="Icon: " FontWeight="Bold" VerticalAlignment="Center"/>
-                    <TextBlock Text="{Binding Package.Manifest.IconText, TargetNullValue=(no icon), ElementName=Editor, Mode=OneWay}" VerticalAlignment="Center" FontStyle="Italic" Visibility="{Binding Package.Manifest.IconUri, Converter={StaticResource ValueIfNullConverter}, ConverterParameter=Visible, FallbackValue=Collapsed, ElementName=Editor, Mode=OneWay}"/>
-                    <Image Source="{Binding IconSource, ElementName=Editor, Mode=OneWay}" Width="64" Height="64" HorizontalAlignment="Left" Visibility="{Binding IconSource, Converter={StaticResource ValueIfNullConverter}, ConverterParameter=Collapsed, FallbackValue=Visible, ElementName=Editor, Mode=OneWay}"/>
+                <StackPanel Orientation="Horizontal" Margin="10 5">
+                    <TextBlock Text="Title: " Style="{StaticResource PropertyNameStyle}"/>
+                    <local:FallbackTextBlock Text="{Binding Package.Manifest.Title, ElementName=Editor, Mode=OneWay}" FallbackText="(no title)" Style="{StaticResource FallbackTextBlockStyle}"/>
                 </StackPanel>
 
-                <StackPanel Orientation="Horizontal" Margin="2">
-                    <TextBlock Text="Description: " FontWeight="Bold"/>
-                    <TextBlock Text="(no description)" FontStyle="Italic" Visibility="{Binding Package.Manifest.Description, Converter={StaticResource ValueIfNullConverter}, ConverterParameter=Visible, FallbackValue=Collapsed, ElementName=Editor, Mode=OneWay}"/>
+                <StackPanel Orientation="Vertical" Margin="10 5">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="Icon: " Style="{StaticResource PropertyNameStyle}"/>
+                        <local:FallbackTextBlock Text="{Binding Package.Manifest.IconText, ElementName=Editor, Mode=OneWay}" FallbackText="(no icon)" Style="{StaticResource FallbackTextBlockStyle}"/>
+                    </StackPanel>
+                    <Image Source="{Binding IconSource, ElementName=Editor, Mode=OneWay}" Width="24" Height="24" HorizontalAlignment="Left" Visibility="{Binding IconSource, Converter={StaticResource ValueIfNullConverter}, ConverterParameter=Collapsed, FallbackValue=Visible, ElementName=Editor, Mode=OneWay}"/>
                 </StackPanel>
-                <FlowDocumentScrollViewer Margin="2,0,2,0" Document="{Binding Package.Manifest.Description, Converter={StaticResource MarkdownConverter}, ElementName=Editor, Mode=OneWay}" Visibility="{Binding Package.Manifest.Description, Converter={StaticResource ValueIfNullConverter}, ConverterParameter=Collapsed, FallbackValue=Visible, ElementName=Editor, Mode=OneWay}" IsHitTestVisible="False" VerticalScrollBarVisibility="Disabled"/>
 
-                <StackPanel Orientation="Horizontal" Margin="2">
-                    <TextBlock Text="Dependencies: " FontWeight="Bold"/>
-                    <TextBlock Text="(no dependencies)" FontStyle="Italic" Visibility="{Binding Package.Manifest.Dependencies.Count, Converter={StaticResource ValueIfZeroConverter}, ConverterParameter=Visible, FallbackValue=Collapsed, ElementName=Editor, Mode=OneWay}"/>
+                <StackPanel Orientation="Vertical" Margin="10 5">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="Description: " Style="{StaticResource PropertyNameStyle}"/>
+                        <TextBlock Text="(no description)" FontStyle="Italic" Foreground="#8689A1" Visibility="{Binding Package.Manifest.Description, Converter={StaticResource ValueIfNullConverter}, ConverterParameter=Visible, FallbackValue=Collapsed, ElementName=Editor, Mode=OneWay}"/>
+                    </StackPanel>
+                    <FlowDocumentScrollViewer Document="{Binding Package.Manifest.Description, Converter={StaticResource MarkdownConverter}, ElementName=Editor, Mode=OneWay}" Visibility="{Binding Package.Manifest.Description, Converter={StaticResource ValueIfNullConverter}, ConverterParameter=Collapsed, FallbackValue=Visible, ElementName=Editor, Mode=OneWay}" IsHitTestVisible="False" VerticalScrollBarVisibility="Disabled"/>
                 </StackPanel>
-                <ItemsControl ItemsSource="{Binding Package.Manifest.Dependencies, ElementName=Editor, Mode=OneWay}" Margin="2">
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate DataType="{x:Type upack:UniversalPackageDependency}">
-                            <Grid>
-                                <StackPanel Orientation="Horizontal" Visibility="{Binding ValidationError, Converter={StaticResource ValueIfNullConverter}, ConverterParameter=Visible, FallbackValue=Collapsed}">
-                                    <TextBlock Text="{Binding GroupAndName, Mode=OneWay}" FontWeight="Bold" Margin="0,0,5,0"/>
-                                    <TextBlock Text="{Binding Version, TargetNullValue=(latest version), Mode=OneWay}" FontStyle="{Binding Version, Converter={StaticResource ItalicIfNullConverter}, Mode=OneWay}"/>
-                                </StackPanel>
-                                <TextBlock Text="{Binding RawValue}" Visibility="{Binding ValidationError, Converter={StaticResource ValueIfNullConverter}, ConverterParameter=Collapsed, FallbackValue=Visible}" Foreground="Red"/>
-                            </Grid>
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
+
+                <StackPanel Orientation="Vertical" Margin="10 5">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="Dependencies: " Style="{StaticResource PropertyNameStyle}"/>
+                        <TextBlock Text="(no dependencies)" FontStyle="Italic" Foreground="#8689A1" Visibility="{Binding Package.Manifest.Dependencies.Count, Converter={StaticResource ValueIfZeroConverter}, ConverterParameter=Visible, FallbackValue=Collapsed, ElementName=Editor, Mode=OneWay}"/>
+                    </StackPanel>
+                    <ItemsControl ItemsSource="{Binding Package.Manifest.Dependencies, ElementName=Editor, Mode=OneWay}" Margin="2">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate DataType="{x:Type upack:UniversalPackageDependency}">
+                                <Grid>
+                                    <StackPanel Orientation="Horizontal" Visibility="{Binding ValidationError, Converter={StaticResource ValueIfNullConverter}, ConverterParameter=Visible, FallbackValue=Collapsed}">
+                                        <TextBlock Text="{Binding GroupAndName, Mode=OneWay}" FontWeight="Bold" Margin="0,0,5,0" Foreground="#282B3A"/>
+                                        <TextBlock Text="{Binding Version, TargetNullValue=(latest version), Mode=OneWay}" FontStyle="{Binding Version, Converter={StaticResource ItalicIfNullConverter}, Mode=OneWay}" Foreground="#8689A1"/>
+                                    </StackPanel>
+                                    <TextBlock Text="{Binding RawValue}" Visibility="{Binding ValidationError, Converter={StaticResource ValueIfNullConverter}, ConverterParameter=Collapsed, FallbackValue=Visible}" Foreground="Red"/>
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
             </StackPanel>
         </ScrollViewer>
         <ScrollViewer Visibility="{Binding EditModeVisibility, ElementName=Editor, Mode=OneWay}" VerticalScrollBarVisibility="Auto">
-            <StackPanel Orientation="Vertical" Margin="0,0,0,25">
-                <Grid Validation.ValidationAdornerSiteFor="{Binding ElementName=GroupText}" Margin="2">
+            <StackPanel Orientation="Vertical">
+                <Grid Validation.ValidationAdornerSiteFor="{Binding ElementName=GroupText}" Margin="10 5 10 3">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>
@@ -78,7 +110,7 @@
                         <ColumnDefinition/>
                         <ColumnDefinition Width="4*"/>
                     </Grid.ColumnDefinitions>
-                    <Label Content="_Group:" Target="{Binding ElementName=GroupText}" FontWeight="Bold" Padding="0"/>
+                    <Label Content="_Group:" Target="{Binding ElementName=GroupText}" Style="{StaticResource PropertyNameLabelStyle}"/>
                     <TextBox Grid.Column="1" x:Name="GroupText" TabIndex="0" VerticalAlignment="Center">
                         <TextBox.Text>
                             <Binding Path="Package.Manifest.Group" ElementName="Editor" Mode="TwoWay">
@@ -90,7 +122,7 @@
                     </TextBox>
                     <TextBlock Grid.ColumnSpan="2" Grid.Row="1" Visibility="{Binding Count, Converter={StaticResource ValueIfZeroConverter}, ConverterParameter=Collapsed, FallbackValue=Visible}" Text="{Binding [0].ErrorContent}" DataContext="{Binding (Validation.ValidationAdornerSiteFor).(Validation.Errors), RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Grid}}}"/>
                 </Grid>
-                <Grid Validation.ValidationAdornerSiteFor="{Binding ElementName=NameText}" Margin="2">
+                <Grid Validation.ValidationAdornerSiteFor="{Binding ElementName=NameText}" Margin="10 5 10 3">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>
@@ -99,7 +131,7 @@
                         <ColumnDefinition/>
                         <ColumnDefinition Width="4*"/>
                     </Grid.ColumnDefinitions>
-                    <Label Content="_Name:" Target="{Binding ElementName=NameText}" FontWeight="Bold" Padding="0"/>
+                    <Label Content="_Name:" Target="{Binding ElementName=NameText}" Style="{StaticResource PropertyNameLabelStyle}"/>
                     <TextBox Grid.Column="1" x:Name="NameText" TabIndex="1" VerticalAlignment="Center">
                         <TextBox.Text>
                             <Binding Path="Package.Manifest.Name" ElementName="Editor" Mode="TwoWay">
@@ -111,7 +143,7 @@
                     </TextBox>
                     <TextBlock Grid.ColumnSpan="2" Grid.Row="1" Visibility="{Binding Count, Converter={StaticResource ValueIfZeroConverter}, ConverterParameter=Collapsed, FallbackValue=Visible}" Text="{Binding [0].ErrorContent}" DataContext="{Binding (Validation.ValidationAdornerSiteFor).(Validation.Errors), RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Grid}}}"/>
                 </Grid>
-                <Grid Validation.ValidationAdornerSiteFor="{Binding ElementName=VersionText}" Margin="2">
+                <Grid Validation.ValidationAdornerSiteFor="{Binding ElementName=VersionText}" Margin="10 5 10 3">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>
@@ -120,7 +152,7 @@
                         <ColumnDefinition/>
                         <ColumnDefinition Width="4*"/>
                     </Grid.ColumnDefinitions>
-                    <Label Content="_Version:" Target="{Binding ElementName=VersionText}" FontWeight="Bold" Padding="0"/>
+                    <Label Content="_Version:" Target="{Binding ElementName=VersionText}" Style="{StaticResource PropertyNameLabelStyle}"/>
                     <TextBox Grid.Column="1" x:Name="VersionText" TabIndex="2" VerticalAlignment="Center">
                         <TextBox.Text>
                             <Binding Path="Package.Manifest.VersionText" ElementName="Editor" Mode="TwoWay">
@@ -132,7 +164,7 @@
                     </TextBox>
                     <TextBlock Grid.ColumnSpan="2" Grid.Row="1" Visibility="{Binding Count, Converter={StaticResource ValueIfZeroConverter}, ConverterParameter=Collapsed, FallbackValue=Visible}" Text="{Binding [0].ErrorContent}" DataContext="{Binding (Validation.ValidationAdornerSiteFor).(Validation.Errors), RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Grid}}}"/>
                 </Grid>
-                <Grid Validation.ValidationAdornerSiteFor="{Binding ElementName=TitleText}" Margin="2">
+                <Grid Validation.ValidationAdornerSiteFor="{Binding ElementName=TitleText}" Margin="10 5 10 3">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>
@@ -141,7 +173,7 @@
                         <ColumnDefinition/>
                         <ColumnDefinition Width="4*"/>
                     </Grid.ColumnDefinitions>
-                    <Label Content="_Title:" Target="{Binding ElementName=TitleText}" FontWeight="Bold" Padding="0"/>
+                    <Label Content="_Title:" Target="{Binding ElementName=TitleText}" Style="{StaticResource PropertyNameLabelStyle}"/>
                     <TextBox Grid.Column="1" x:Name="TitleText" TabIndex="3" VerticalAlignment="Center">
                         <TextBox.Text>
                             <Binding Path="Package.Manifest.Title" ElementName="Editor" Mode="TwoWay">
@@ -153,17 +185,12 @@
                     </TextBox>
                     <TextBlock Grid.ColumnSpan="2" Grid.Row="1" Visibility="{Binding Count, Converter={StaticResource ValueIfZeroConverter}, ConverterParameter=Collapsed, FallbackValue=Visible}" Text="{Binding [0].ErrorContent}" DataContext="{Binding (Validation.ValidationAdornerSiteFor).(Validation.Errors), RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Grid}}}"/>
                 </Grid>
-                <Grid Validation.ValidationAdornerSiteFor="{Binding ElementName=IconText}" Margin="2">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                    </Grid.RowDefinitions>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition/>
-                        <ColumnDefinition Width="4*"/>
-                    </Grid.ColumnDefinitions>
-                    <Label Content="_Icon:" Target="{Binding ElementName=IconText}" FontWeight="Bold" Padding="0"/>
-                    <TextBox Grid.Column="1" x:Name="IconText" TabIndex="4" VerticalAlignment="Center">
+                <StackPanel Validation.ValidationAdornerSiteFor="{Binding ElementName=IconText}" Orientation="Vertical" Margin="10 5 10 3">
+                    <StackPanel Orientation="Horizontal">
+                        <Label Content="_Icon: " Target="{Binding ElementName=IconText}" Style="{StaticResource PropertyNameLabelStyle}"/>
+                        <TextBlock Text="(http(s) URL or package://path/to/icon.png)" Style="{StaticResource HintTextStyle}"/>
+                    </StackPanel>
+                    <TextBox x:Name="IconText" TabIndex="4" VerticalAlignment="Center">
                         <TextBox.Text>
                             <Binding Path="Package.Manifest.IconText" ElementName="Editor" Mode="TwoWay">
                                 <Binding.ValidationRules>
@@ -172,19 +199,19 @@
                             </Binding>
                         </TextBox.Text>
                     </TextBox>
-                    <TextBlock Grid.ColumnSpan="2" Grid.Row="1" Visibility="{Binding Count, Converter={StaticResource ValueIfZeroConverter}, ConverterParameter=Collapsed, FallbackValue=Visible}" Text="{Binding [0].ErrorContent}" DataContext="{Binding (Validation.ValidationAdornerSiteFor).(Validation.Errors), RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Grid}}}"/>
-                </Grid>
-                <StackPanel Orientation="Vertical" Margin="2">
+                    <TextBlock Visibility="{Binding Count, Converter={StaticResource ValueIfZeroConverter}, ConverterParameter=Collapsed, FallbackValue=Visible}" Text="{Binding [0].ErrorContent}" DataContext="{Binding (Validation.ValidationAdornerSiteFor).(Validation.Errors), RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type StackPanel}}}"/>
+                </StackPanel>
+                <StackPanel Orientation="Vertical" Margin="10 5 10 3">
                     <StackPanel Orientation="Horizontal">
-                        <Label Content="_Description: " Target="{Binding ElementName=DescriptionText}" FontWeight="Bold" Padding="0"/>
-                        <TextBlock Text="(use Markdown)" FontStyle="Italic"/>
+                        <Label Content="_Description: " Target="{Binding ElementName=DescriptionText}" Style="{StaticResource PropertyNameLabelStyle}"/>
+                        <TextBlock Text="(use Markdown)" Style="{StaticResource HintTextStyle}"/>
                     </StackPanel>
                     <TextBox x:Name="DescriptionText" TabIndex="5" VerticalAlignment="Center" Text="{Binding Package.Manifest.Description, ElementName=Editor, Mode=TwoWay}" MinLines="3" AcceptsReturn="True" TextWrapping="Wrap" VerticalScrollBarVisibility="Disabled"/>
                 </StackPanel>
-                <StackPanel Validation.ValidationAdornerSiteFor="{Binding ElementName=DependenciesText}" Orientation="Vertical" Margin="2">
+                <StackPanel Validation.ValidationAdornerSiteFor="{Binding ElementName=DependenciesText}" Orientation="Vertical" Margin="10 5 10 3">
                     <StackPanel Orientation="Horizontal">
-                        <Label Content="D_ependencies: " Target="{Binding ElementName=DependenciesText}" FontWeight="Bold" Padding="0"/>
-                        <TextBlock Text="(name:version or name)" FontStyle="Italic"/>
+                        <Label Content="D_ependencies: " Target="{Binding ElementName=DependenciesText}" Style="{StaticResource PropertyNameLabelStyle}"/>
+                        <TextBlock Text="(name:version or name)" Style="{StaticResource HintTextStyle}"/>
                     </StackPanel>
                     <TextBox x:Name="DependenciesText" HorizontalScrollBarVisibility="Auto" AcceptsReturn="True" TabIndex="6">
                         <TextBox.Text>
@@ -199,6 +226,31 @@
                 </StackPanel>
             </StackPanel>
         </ScrollViewer>
-        <Button MinWidth="50" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="25,5" Content="{Binding ToggleButtonText, ElementName=Editor, Mode=OneWay}" Click="ToggleEditMode"/>
+        <Grid Grid.Row="1">
+            <Button Margin="25 10" HorizontalAlignment="Right" VerticalAlignment="Bottom" Content="{Binding ToggleButtonText, ElementName=Editor, Mode=OneWay}" Click="ToggleEditMode">
+                <Button.Template>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="White" Width="125" Padding="10" BorderBrush="#8689A1" BorderThickness="1" CornerRadius="5" x:Name="border">
+                            <ContentPresenter
+                                x:Name="content"
+                                TextElement.FontFamily="./Resources/Fonts/#Karla"
+                                TextElement.FontSize="14"
+                                TextElement.Foreground="#282B3A"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter Property="Margin" TargetName="content" Value="2 2 0 0"/>
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" TargetName="border" Value="#B8B9C1"/>
+                                <Setter Property="TextElement.Foreground" TargetName="content" Value="White"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Button.Template>
+            </Button>
+        </Grid>
     </Grid>
 </UserControl>

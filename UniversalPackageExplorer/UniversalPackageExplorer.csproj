@@ -59,6 +59,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Page Include="FallbackTextBlock.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="OpenFromFeedWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -97,6 +101,9 @@
     </Compile>
     <Compile Include="Commands.cs" />
     <Compile Include="Collections\ComputedCollection.cs" />
+    <Compile Include="FallbackTextBlock.xaml.cs">
+      <DependentUpon>FallbackTextBlock.xaml</DependentUpon>
+    </Compile>
     <Compile Include="OpenFromFeedWindow.xaml.cs">
       <DependentUpon>OpenFromFeedWindow.xaml</DependentUpon>
     </Compile>
