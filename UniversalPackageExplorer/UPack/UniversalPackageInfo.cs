@@ -1,10 +1,11 @@
 ﻿using Newtonsoft.Json;
 using System;
+using System.ComponentModel;
 using System.Linq;
 
 namespace UniversalPackageExplorer.UPack
 {
-    public sealed class UniversalPackageInfo
+    public sealed class UniversalPackageInfo : INotifyPropertyChanged
     {
         [JsonProperty("group")]
         public string Group { get; set; }
@@ -21,6 +22,8 @@ namespace UniversalPackageExplorer.UPack
         [JsonProperty("latestVersion")]
         public string LatestVersion { get; set; }
 
+        public event PropertyChangedEventHandler PropertyChanged;
+
         private string version;
         [JsonIgnore]
         public string Version
@@ -33,6 +36,8 @@ namespace UniversalPackageExplorer.UPack
                     throw new ArgumentException("Not a version of this package", nameof(value));
                 }
                 this.version = value;
+                this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Version)));
+                this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(SemVersion)));
             }
         }
 

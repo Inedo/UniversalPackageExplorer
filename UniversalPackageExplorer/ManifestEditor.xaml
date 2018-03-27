@@ -1,44 +1,16 @@
 ﻿<UserControl x:Class="UniversalPackageExplorer.ManifestEditor"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:local="clr-namespace:UniversalPackageExplorer"
-             xmlns:converters="clr-namespace:UniversalPackageExplorer.Converters"
              xmlns:validationrules="clr-namespace:UniversalPackageExplorer.ValidationRules"
              xmlns:upack="clr-namespace:UniversalPackageExplorer.UPack"
              mc:Ignorable="d" x:Name="Editor"
              d:DesignHeight="300" d:DesignWidth="300"
-             FontFamily="./Resources/Fonts/#Karla">
+             FontFamily="./Resources/Fonts/#Karla"
+             TextOptions.TextFormattingMode="Ideal">
     <Grid Background="White">
-        <Grid.Resources>
-            <converters:ItalicIfNullConverter x:Key="ItalicIfNullConverter"/>
-            <converters:ValueIfNullConverter x:Key="ValueIfNullConverter"/>
-            <converters:ValueIfZeroConverter x:Key="ValueIfZeroConverter"/>
-            <converters:MarkdownConverter x:Key="MarkdownConverter"/>
-            <converters:DependenciesConverter x:Key="DependenciesConverter"/>
-            <Style x:Key="PropertyNameStyle" TargetType="TextBlock">
-                <Setter Property="FontWeight" Value="Bold"/>
-                <Setter Property="Foreground" Value="#282B3A"/>
-                <Setter Property="FontFamily" Value="./Resources/Fonts/#Karla"/>
-            </Style>
-            <Style x:Key="PropertyNameLabelStyle" TargetType="Label">
-                <Setter Property="FontWeight" Value="Bold"/>
-                <Setter Property="Foreground" Value="#282B3A"/>
-                <Setter Property="Padding" Value="0"/>
-                <Setter Property="FontFamily" Value="./Resources/Fonts/#Karla"/>
-            </Style>
-            <Style x:Key="FallbackTextBlockStyle" TargetType="local:FallbackTextBlock">
-                <Setter Property="FallbackForeground" Value="#8689A1" />
-                <Setter Property="Foreground" Value="#282B3A" />
-                <Setter Property="FontFamily" Value="./Resources/Fonts/#Karla"/>
-            </Style>
-            <Style x:Key="HintTextStyle" TargetType="TextBlock">
-                <Setter Property="Foreground" Value="#8689A1" />
-                <Setter Property="FontStyle" Value="Italic"/>
-                <Setter Property="FontFamily" Value="./Resources/Fonts/#Karla"/>
-            </Style>
-        </Grid.Resources>
         <Grid.RowDefinitions>
             <RowDefinition/>
             <RowDefinition Height="Auto"/>
@@ -75,7 +47,9 @@
                         <TextBlock Text="Description: " Style="{StaticResource PropertyNameStyle}"/>
                         <TextBlock Text="(no description)" FontStyle="Italic" Foreground="#8689A1" Visibility="{Binding Package.Manifest.Description, Converter={StaticResource ValueIfNullConverter}, ConverterParameter=Visible, FallbackValue=Collapsed, ElementName=Editor, Mode=OneWay}"/>
                     </StackPanel>
-                    <FlowDocumentScrollViewer Document="{Binding Package.Manifest.Description, Converter={StaticResource MarkdownConverter}, ElementName=Editor, Mode=OneWay}" Visibility="{Binding Package.Manifest.Description, Converter={StaticResource ValueIfNullConverter}, ConverterParameter=Collapsed, FallbackValue=Visible, ElementName=Editor, Mode=OneWay}" IsHitTestVisible="False" VerticalScrollBarVisibility="Disabled"/>
+                    <FlowDocumentScrollViewer Document="{Binding Package.Manifest.Description, Converter={StaticResource MarkdownConverter}, ElementName=Editor, Mode=OneWay}"
+                                              Visibility="{Binding Package.Manifest.Description, Converter={StaticResource ValueIfNullConverter}, ConverterParameter=Collapsed, FallbackValue=Visible, ElementName=Editor, Mode=OneWay}"
+                                              VerticalScrollBarVisibility="Disabled"/>
                 </StackPanel>
 
                 <StackPanel Orientation="Vertical" Margin="10 5">
@@ -227,30 +201,8 @@
             </StackPanel>
         </ScrollViewer>
         <Grid Grid.Row="1">
-            <Button Margin="25 10" HorizontalAlignment="Right" VerticalAlignment="Bottom" Content="{Binding ToggleButtonText, ElementName=Editor, Mode=OneWay}" Click="ToggleEditMode">
-                <Button.Template>
-                    <ControlTemplate TargetType="Button">
-                        <Border Background="White" Width="125" Padding="10" BorderBrush="#8689A1" BorderThickness="1" CornerRadius="5" x:Name="border">
-                            <ContentPresenter
-                                x:Name="content"
-                                TextElement.FontFamily="./Resources/Fonts/#Karla"
-                                TextElement.FontSize="14"
-                                TextElement.Foreground="#282B3A"
-                                HorizontalAlignment="Center"
-                                VerticalAlignment="Center"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsPressed" Value="True">
-                                <Setter Property="Margin" TargetName="content" Value="2 2 0 0"/>
-                            </Trigger>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="Background" TargetName="border" Value="#B8B9C1"/>
-                                <Setter Property="TextElement.Foreground" TargetName="content" Value="White"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Button.Template>
-            </Button>
+            <Button Margin="0 10 25 10" MinWidth="125" HorizontalAlignment="Right" VerticalAlignment="Bottom" Content="{Binding ToggleButtonText, ElementName=Editor, Mode=OneWay}"
+                    Click="ToggleEditMode" Template="{StaticResource ButtonTemplate}"/>
         </Grid>
     </Grid>
 </UserControl>

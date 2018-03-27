@@ -44,6 +44,16 @@ namespace UniversalPackageExplorer
             }
         }
 
+        public static void StoreRecentEndpoints(string[] endpoints)
+        {
+            Registry.CurrentUser.SetValue(@"Software\Inedo\UniversalPackageExplorer\RecentEndpoints", endpoints, RegistryValueKind.MultiString);
+        }
+
+        public static string[] LoadRecentEndpoints()
+        {
+            return Registry.CurrentUser.GetValue(@"Software\Inedo\UniversalPackageExplorer\RecentEndpoints") as string[] ?? new string[0];
+        }
+
         public static List<RecentItem> GetRecentItems()
         {
             var assembly = Assembly.GetEntryAssembly();

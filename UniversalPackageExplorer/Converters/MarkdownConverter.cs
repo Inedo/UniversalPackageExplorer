@@ -1,11 +1,13 @@
 ﻿using CommonMark;
 using System;
+using System.Diagnostics;
 using System.Globalization;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Media;
+using System.Windows.Navigation;
 using BlockTag = CommonMark.Syntax.BlockTag;
 using InlineTag = CommonMark.Syntax.InlineTag;
 
@@ -98,11 +100,13 @@ namespace UniversalPackageExplorer.Converters
                 case InlineTag.Strong:
                     return new Bold(Fill(inline.FirstChild));
                 case InlineTag.Link:
-                    return new Hyperlink(Fill(inline.FirstChild))
+                    var link = new Hyperlink(Fill(inline.FirstChild))
                     {
                         NavigateUri = new Uri(inline.TargetUrl),
                         ToolTip = string.IsNullOrWhiteSpace(inline.LiteralContent) ? null : inline.LiteralContent
                     };
+                    link.RequestNavigate += NavigateToUri;
+                    return link;
                 case InlineTag.Image:
                     return new InlineUIContainer(new Image
                     {
@@ -116,6 +120,12 @@ namespace UniversalPackageExplorer.Converters
             }
 
             throw new NotImplementedException();
+        }
+
+        private static void NavigateToUri(object sender, RequestNavigateEventArgs e)
+        {
+            Process.Start(e.Uri.ToString()).Dispose();
+            e.Handled = true;
         }
 
         private Block Fill(CommonMark.Syntax.Block firstChild)

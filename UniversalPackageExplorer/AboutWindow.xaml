@@ -6,11 +6,16 @@
         xmlns:local="clr-namespace:UniversalPackageExplorer"
         mc:Ignorable="d"
         x:Name="About"
-        Title="About Universal Package Explorer" Height="100" Width="300" WindowStartupLocation="CenterOwner">
+        Style="{StaticResource WindowStyle}"
+        Title="About Universal Package Explorer" Height="200" MinHeight="200" Width="350" MinWidth="350" WindowStartupLocation="CenterOwner">
     <Grid>
-        <WrapPanel HorizontalAlignment="Center" VerticalAlignment="Center" Margin="5">
-            <Label Content="Universal Package Explorer version " Padding="0"/>
-            <Label Content="{Binding VersionText, ElementName=About}" Grid.Column="1" Padding="0"/>
-        </WrapPanel>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="100"/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+        <Image Source="{StaticResource UPackLogo}" Margin="30 10"/>
+        <TextBlock Grid.Row="1" Margin="5" HorizontalAlignment="Center" VerticalAlignment="Center" TextWrapping="Wrap">
+            Universal Package Explorer version <Run Text="{Binding VersionText, ElementName=About, Mode=OneTime}"/>
+        </TextBlock>
     </Grid>
 </Window>

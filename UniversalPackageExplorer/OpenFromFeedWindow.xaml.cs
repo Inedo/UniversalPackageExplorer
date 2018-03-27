@@ -1,7 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.IO;
+using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using System.Windows;
@@ -17,14 +17,21 @@ namespace UniversalPackageExplorer
         public OpenFromFeedWindow()
         {
             InitializeComponent();
+
+            if (this.RecentEndpoints.Any())
+            {
+                this.UpdateSearch();
+            }
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        private string endpointUri = "https://proget.example.com/upack/FeedName";
+        public ObservableCollection<string> RecentEndpoints { get; } = new ObservableCollection<string>(WindowsRegistry.LoadRecentEndpoints());
+
+        private string endpointUri = null;
         public string EndpointUri
         {
-            get => this.endpointUri;
+            get => this.endpointUri ?? this.RecentEndpoints.DefaultIfEmpty("https://proget.example.com/upack/FeedName").First();
             set
             {
                 this.endpointUri = value;
@@ -47,6 +54,7 @@ namespace UniversalPackageExplorer
             {
                 this.searchText = value;
                 this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(SearchText)));
+
                 this.UpdateSearch();
             }
         }
@@ -56,15 +64,21 @@ namespace UniversalPackageExplorer
         public IList<UniversalPackageInfo> SearchResults { get; private set; }
 
         private bool isUpdating = false;
+        private bool updateQueued = false;
 
         private void UpdateSearch()
         {
             if (this.isUpdating)
             {
+                this.updateQueued = true;
                 return;
             }
 
             this.isUpdating = true;
+
+            var endpoint = this.EndpointUri;
+            var search = this.SearchText;
+            var auth = this.credentials;
 
             Task.Run(async () =>
             {
@@ -73,7 +87,7 @@ namespace UniversalPackageExplorer
                 bool isValid = true;
                 try
                 {
-                    (searchResults, isAuthRequired) = await UniversalPackageEndpoint.SearchAsync(this.EndpointUri, this.SearchText, this.credentials);
+                    (searchResults, isAuthRequired) = await UniversalPackageEndpoint.SearchAsync(endpoint, search, auth);
                     isValid = !isAuthRequired;
                 }
                 catch
@@ -85,6 +99,26 @@ namespace UniversalPackageExplorer
 
                 await this.Dispatcher.InvokeAsync(() =>
                 {
+                    if (isValid)
+                    {
+                        var index = this.RecentEndpoints.IndexOf(endpoint);
+                        if (index == -1)
+                        {
+                            this.RecentEndpoints.Insert(0, endpoint);
+                        }
+                        else if (index != 0)
+                        {
+                            this.RecentEndpoints.Move(index, 0);
+                        }
+
+                        while (this.RecentEndpoints.Count > 25)
+                        {
+                            this.RecentEndpoints.RemoveAt(25);
+                        }
+
+                        WindowsRegistry.StoreRecentEndpoints(this.RecentEndpoints.ToArray());
+                    }
+
                     if (this.IsAuthRequired != isAuthRequired)
                     {
                         this.IsAuthRequired = isAuthRequired;
@@ -98,6 +132,11 @@ namespace UniversalPackageExplorer
                     this.SearchResults = searchResults;
                     this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(SearchResults)));
                     this.isUpdating = false;
+                    if (this.updateQueued)
+                    {
+                        this.updateQueued = false;
+                        this.UpdateSearch();
+                    }
                 });
             });
         }

@@ -5,74 +5,98 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:upack="clr-namespace:UniversalPackageExplorer.UPack"
         xmlns:validationrules="clr-namespace:UniversalPackageExplorer.ValidationRules"
-        xmlns:Converters="clr-namespace:UniversalPackageExplorer.Converters" x:Class="UniversalPackageExplorer.OpenFromFeedWindow"
+        x:Class="UniversalPackageExplorer.OpenFromFeedWindow"
         mc:Ignorable="d"
         x:Name="OpenFromFeed"
-        Height="300" Width="400" WindowStartupLocation="CenterOwner">
+        Style="{StaticResource WindowStyle}"
+        Height="400" Width="600"
+        MinHeight="300" MinWidth="400"
+        WindowStartupLocation="CenterOwner">
     <Window.Resources>
-        <Converters:ValueIfNullConverter x:Key="ValueIfNullConverter"/>
-        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+        <ResourceDictionary>
+            <Style x:Key="ColumnHeaderStyle" TargetType="DataGridColumnHeader">
+                <Setter Property="TextOptions.TextFormattingMode" Value="Display"/>
+                <Setter Property="Foreground" Value="White"/>
+                <Setter Property="Background" Value="#282B3A"/>
+                <Setter Property="Padding" Value="5"/>
+                <Setter Property="BorderThickness" Value="0 0 1 0"/>
+                <Setter Property="BorderBrush" Value="#B8B9C1"/>
+            </Style>
+        </ResourceDictionary>
     </Window.Resources>
-    <Grid>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition/>
-            <ColumnDefinition Width="2*"/>
-        </Grid.ColumnDefinitions>
+    <Grid Margin="10">
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
-        <Label Content="UPack Feed Endpoint" Target="{Binding ElementName=feedEndpoint}"/>
-        <TextBox x:Name="feedEndpoint" VerticalAlignment="Center" Grid.Column="1" Margin="5">
-            <Binding Path="EndpointUri" ElementName="OpenFromFeed" Mode="TwoWay" UpdateSourceTrigger="PropertyChanged" Delay="250">
-                <Binding.ValidationRules>
-                    <validationrules:UPackEndpointValidationRule/>
-                </Binding.ValidationRules>
-            </Binding>
-        </TextBox>
-        <Grid Grid.Row="1" Grid.ColumnSpan="2" Visibility="{Binding IsAuthRequired, Converter={StaticResource BooleanToVisibilityConverter}, ElementName=OpenFromFeed, Mode=OneWay}">
+        <Grid>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition/>
                 <ColumnDefinition Width="2*"/>
             </Grid.ColumnDefinitions>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-            </Grid.RowDefinitions>
-            <Label Content="Username" Target="{Binding ElementName=username}"/>
-            <TextBox x:Name="username" VerticalAlignment="Center" Grid.Column="1" Margin="5"/>
-            <Label Content="Password" Target="{Binding ElementName=password}" Grid.Row="1"/>
-            <PasswordBox x:Name="password" VerticalAlignment="Center" Grid.Column="1" Grid.Row="1" Margin="5"/>
-            <Button Grid.Row="2" Content="Log in" Grid.Column="1" MinWidth="100" Margin="5" HorizontalAlignment="Left" Click="LogIn_Click"/>
+            <Label Content="UPack Feed Endpoint:" Target="{Binding ElementName=feedEndpoint}"/>
+            <ComboBox x:Name="feedEndpoint" VerticalAlignment="Center" Margin="5" Grid.Column="1" ItemsSource="{Binding RecentEndpoints, ElementName=OpenFromFeed, Mode=OneWay}" IsEditable="True" Padding="0">
+                <ComboBox.Text>
+                    <Binding Path="EndpointUri" ElementName="OpenFromFeed" Mode="TwoWay" UpdateSourceTrigger="PropertyChanged" Delay="50">
+                        <Binding.ValidationRules>
+                            <validationrules:UPackEndpointValidationRule/>
+                        </Binding.ValidationRules>
+                    </Binding>
+                </ComboBox.Text>
+            </ComboBox>
         </Grid>
-        <Separator Grid.Row="2" Grid.ColumnSpan="2"/>
-        <Label Content="Search" Grid.Row="3" Target="{Binding ElementName=searchBox}"/>
-        <TextBox x:Name="searchBox" Text="{Binding SearchText, ElementName=OpenFromFeed, Mode=TwoWay, Delay=250, UpdateSourceTrigger=PropertyChanged}" Grid.Row="3" Grid.Column="1" Margin="5" IsEnabled="{Binding IsFeedValid, ElementName=OpenFromFeed, Mode=OneWay}"/>
-        <DataGrid x:Name="grid" Grid.Row="4" Grid.ColumnSpan="2" AutoGenerateColumns="False" SelectionMode="Single" SelectionUnit="FullRow" IsEnabled="{Binding IsFeedValid, ElementName=OpenFromFeed, Mode=OneWay}" ItemsSource="{Binding SearchResults, ElementName=OpenFromFeed, Mode=OneWay}">
+        <Grid Visibility="{Binding IsAuthRequired, Converter={StaticResource BooleanToVisibilityConverter}, ElementName=OpenFromFeed, Mode=OneWay}" Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition Width="4*"/>
+                <ColumnDefinition Width="10*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition/>
+                <RowDefinition/>
+                <RowDefinition/>
+            </Grid.RowDefinitions>
+            <Label Content="Username:" Target="{Binding ElementName=username}" Grid.Column="1"/>
+            <TextBox x:Name="username" VerticalAlignment="Center" Grid.Column="2" Margin="5"/>
+            <Label Content="Password:" Target="{Binding ElementName=password}" Grid.Column="1" Grid.Row="1"/>
+            <PasswordBox x:Name="password" VerticalAlignment="Center" Grid.Column="2" Grid.Row="1" Margin="5"/>
+            <Button Grid.Row="2" Grid.ColumnSpan="3" Content="Log in" MinWidth="100" Margin="5" HorizontalAlignment="Center" Click="LogIn_Click" Template="{StaticResource ButtonTemplate}"/>
+        </Grid>
+        <Grid Grid.Row="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition Width="5*"/>
+            </Grid.ColumnDefinitions>
+            <Label Content="Search:" Target="{Binding ElementName=searchBox}"/>
+            <TextBox x:Name="searchBox" Text="{Binding SearchText, ElementName=OpenFromFeed, Mode=TwoWay, Delay=50, UpdateSourceTrigger=PropertyChanged}" Grid.Column="1" Margin="5" IsEnabled="{Binding IsFeedValid, ElementName=OpenFromFeed, Mode=OneWay}"/>
+        </Grid>
+        <DataGrid x:Name="grid" AutoGenerateColumns="False" SelectionMode="Single" SelectionUnit="FullRow" Grid.Row="3" ColumnHeaderStyle="{StaticResource ColumnHeaderStyle}"
+                  IsEnabled="{Binding IsFeedValid, ElementName=OpenFromFeed, Mode=OneWay}" ItemsSource="{Binding SearchResults, ElementName=OpenFromFeed, Mode=OneWay}" HeadersVisibility="Column" GridLinesVisibility="None">
+            <DataGrid.Resources>
+                <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="#8689A1"/>
+            </DataGrid.Resources>
             <DataGrid.Columns>
-                <DataGridTextColumn Binding="{Binding GroupAndName}" Header="Package" IsReadOnly="True" Width="2*"/>
-                <DataGridTemplateColumn Header="Version" Width="*" IsReadOnly="True" SortMemberPath="{Binding SemVersion}">
+                <DataGridTextColumn Binding="{Binding GroupAndName}" Header="Package ID" IsReadOnly="True" Width="2*"/>
+                <DataGridTemplateColumn Header="Version" Width="*" IsReadOnly="True" SortMemberPath="SemVersion">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate DataType="{x:Type upack:UniversalPackageInfo}">
-                            <ComboBox ItemsSource="{Binding Versions}" SelectedValue="{Binding Version, Mode=TwoWay}"/>
+                            <ComboBox ItemsSource="{Binding Versions}" SelectedValue="{Binding Version, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
             </DataGrid.Columns>
         </DataGrid>
-        <Grid Grid.Row="5" Grid.ColumnSpan="2">
+        <Grid Grid.Row="4">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition/>
                 <ColumnDefinition Width="Auto" MinWidth="75"/>
                 <ColumnDefinition Width="Auto" MinWidth="75"/>
             </Grid.ColumnDefinitions>
-            <Button IsDefault="True" Content="Open" IsEnabled="{Binding SelectedItem, Converter={StaticResource ValueIfNullConverter}, ConverterParameter=False, FallbackValue=True, ElementName=grid, Mode=OneWay}" Click="Open_Click" Grid.Column="1" Margin="5"/>
-            <Button IsCancel="True" Content="Cancel" Click="Cancel_Click" Grid.Column="2" Margin="5"/>
+            <Button IsDefault="True" Content="Open" IsEnabled="{Binding SelectedItem, Converter={StaticResource ValueIfNullConverter}, ConverterParameter=False, TargetNullValue=True, ElementName=grid, Mode=OneWay}" Click="Open_Click" Grid.Column="1" Margin="5" Template="{StaticResource ButtonTemplate}"/>
+            <Button IsCancel="True" Content="Cancel" Click="Cancel_Click" Grid.Column="2" Margin="5" Template="{StaticResource ButtonTemplate}"/>
         </Grid>
     </Grid>
 </Window>
