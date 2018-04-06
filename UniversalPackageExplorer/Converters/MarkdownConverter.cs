@@ -20,7 +20,12 @@ namespace UniversalPackageExplorer.Converters
         {
             var block = CommonMarkConverter.Parse((string)value);
 
-            return block == null ? null : new FlowDocument(Fill(block.FirstChild)) { PagePadding = new Thickness(0) };
+            return block == null ? null : new FlowDocument(Fill(block.FirstChild))
+            {
+                PagePadding = new Thickness(0),
+                FontFamily = (FontFamily)new FontFamilyConverter().ConvertFromInvariantString("./Resources/Fonts/#Karla"),
+                FontSize = 14
+            };
         }
 
         private Block Convert(CommonMark.Syntax.Block block)
@@ -122,7 +127,7 @@ namespace UniversalPackageExplorer.Converters
             throw new NotImplementedException();
         }
 
-        private static void NavigateToUri(object sender, RequestNavigateEventArgs e)
+        internal static void NavigateToUri(object sender, RequestNavigateEventArgs e)
         {
             Process.Start(e.Uri.ToString()).Dispose();
             e.Handled = true;

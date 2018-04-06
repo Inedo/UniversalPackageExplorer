@@ -5,6 +5,7 @@ using System.Globalization;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
+using System.Windows.Navigation;
 using UniversalPackageExplorer.UPack;
 
 namespace UniversalPackageExplorer
@@ -132,6 +133,11 @@ namespace UniversalPackageExplorer
         private void IconPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IconSource)));
+        }
+
+        private void NavigateToUri(object sender, RequestNavigateEventArgs e)
+        {
+            Converters.MarkdownConverter.NavigateToUri(sender, e);
         }
     }
 }

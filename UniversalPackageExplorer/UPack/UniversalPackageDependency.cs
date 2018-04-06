@@ -18,7 +18,7 @@ namespace UniversalPackageExplorer.UPack
 
         public UniversalPackageDependency(string raw)
         {
-            this.RawValue = raw;
+            this.RawValue = raw.Trim('\r');
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

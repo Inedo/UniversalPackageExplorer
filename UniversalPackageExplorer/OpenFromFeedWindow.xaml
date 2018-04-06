@@ -70,7 +70,17 @@
                 <ColumnDefinition/>
                 <ColumnDefinition Width="5*"/>
             </Grid.ColumnDefinitions>
-            <Label Content="Search:" Target="{Binding ElementName=searchBox}"/>
+            <Label Content="Search:" Target="{Binding ElementName=searchBox}" x:Name="searchLabel">
+                <Label.Style>
+                    <Style TargetType="Label">
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding IsFeedValid, ElementName=OpenFromFeed, Mode=OneWay}" Value="False">
+                                <Setter Property="Foreground" Value="#8689A1"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Label.Style>
+            </Label>
             <TextBox x:Name="searchBox" Text="{Binding SearchText, ElementName=OpenFromFeed, Mode=TwoWay, Delay=50, UpdateSourceTrigger=PropertyChanged}" Grid.Column="1" Margin="5" IsEnabled="{Binding IsFeedValid, ElementName=OpenFromFeed, Mode=OneWay}"/>
         </Grid>
         <DataGrid x:Name="grid" AutoGenerateColumns="False" SelectionMode="Single" SelectionUnit="FullRow" Grid.Row="3" ColumnHeaderStyle="{StaticResource ColumnHeaderStyle}"

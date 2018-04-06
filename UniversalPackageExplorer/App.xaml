@@ -54,11 +54,12 @@
             <Setter Property="Padding" Value="0"/>
         </Style>
         <Style x:Key="FallbackTextBlockStyle" TargetType="local:FallbackTextBlock">
-            <Setter Property="FallbackForeground" Value="#8689A1" />
-            <Setter Property="Foreground" Value="#282B3A" />
+            <Setter Property="FallbackForeground" Value="#8689A1"/>
+            <Setter Property="FallbackFontStyle" Value="Italic"/>
+            <Setter Property="Foreground" Value="#282B3A"/>
         </Style>
         <Style x:Key="HintTextStyle" TargetType="TextBlock">
-            <Setter Property="Foreground" Value="#8689A1" />
+            <Setter Property="Foreground" Value="#8689A1"/>
             <Setter Property="FontStyle" Value="Italic"/>
         </Style>
         <ControlTemplate x:Key="ButtonTemplate" TargetType="Button">
@@ -73,9 +74,20 @@
                 <Trigger Property="IsPressed" Value="True">
                     <Setter Property="Margin" TargetName="content" Value="0.5 1 -0.5 -1"/>
                 </Trigger>
-                <Trigger Property="IsMouseOver" Value="True">
+                <MultiTrigger>
+                    <MultiTrigger.Conditions>
+                        <Condition Property="IsMouseOver" Value="True"/>
+                        <Condition Property="IsEnabled" Value="True"/>
+                    </MultiTrigger.Conditions>
+                    <Setter Property="Cursor" TargetName="border" Value="Hand"/>
+                    <Setter Property="BorderBrush" TargetName="border" Value="#B8B9C1"/>
                     <Setter Property="Background" TargetName="border" Value="#B8B9C1"/>
                     <Setter Property="TextElement.Foreground" TargetName="content" Value="White"/>
+                </MultiTrigger>
+                <Trigger Property="IsEnabled" Value="False">
+                    <Setter Property="BorderBrush" TargetName="border" Value="#B8B9C1"/>
+                    <Setter Property="Background" TargetName="border" Value="#DBDCE5"/>
+                    <Setter Property="TextElement.Foreground" TargetName="content" Value="#B8B9C1"/>
                 </Trigger>
             </ControlTemplate.Triggers>
         </ControlTemplate>

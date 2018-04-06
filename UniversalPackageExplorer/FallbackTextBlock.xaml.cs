@@ -13,6 +13,19 @@ namespace UniversalPackageExplorer
         public FallbackTextBlock()
         {
             InitializeComponent();
+
+            if (this.Text == null)
+            {
+                this.ComputedText = this.FallbackText;
+                this.ComputedFontStyle = this.FallbackFontStyle;
+                this.ComputedForeground = this.FallbackForeground;
+            }
+            else
+            {
+                this.ComputedText = this.Text;
+                this.ComputedFontStyle = this.FontStyle;
+                this.ComputedForeground = this.Foreground;
+            }
         }
 
         public static readonly DependencyPropertyKey ComputedTextPropertyKey = DependencyProperty.RegisterReadOnly(nameof(ComputedText), typeof(string), typeof(FallbackTextBlock), new PropertyMetadata());

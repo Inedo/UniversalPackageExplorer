@@ -34,26 +34,26 @@
                     <local:FallbackTextBlock Text="{Binding Package.Manifest.Title, ElementName=Editor, Mode=OneWay}" FallbackText="(no title)" Style="{StaticResource FallbackTextBlockStyle}"/>
                 </StackPanel>
 
-                <StackPanel Orientation="Vertical" Margin="10 5">
-                    <StackPanel Orientation="Horizontal">
+                <StackPanel Orientation="Vertical" Margin="10 5 10 0">
+                    <StackPanel Orientation="Horizontal" Margin="0 0 0 5">
                         <TextBlock Text="Icon: " Style="{StaticResource PropertyNameStyle}"/>
-                        <local:FallbackTextBlock Text="{Binding Package.Manifest.IconText, ElementName=Editor, Mode=OneWay}" FallbackText="(no icon)" Style="{StaticResource FallbackTextBlockStyle}"/>
+                        <local:FallbackTextBlock Text="{Binding Package.Manifest.IconText, ElementName=Editor, Mode=OneWay}" FallbackText="(no icon)" Style="{StaticResource FallbackTextBlockStyle}" Visibility="{Binding IconSource, Converter={StaticResource ValueIfNullConverter}, ConverterParameter=Visible, FallbackValue=Collapsed, ElementName=Editor, Mode=OneWay}"/>
                     </StackPanel>
-                    <Image Source="{Binding IconSource, ElementName=Editor, Mode=OneWay}" Width="24" Height="24" HorizontalAlignment="Left" Visibility="{Binding IconSource, Converter={StaticResource ValueIfNullConverter}, ConverterParameter=Collapsed, FallbackValue=Visible, ElementName=Editor, Mode=OneWay}"/>
+                    <Image Source="{Binding IconSource, ElementName=Editor, Mode=OneWay}" Width="24" Height="24" HorizontalAlignment="Left" Visibility="{Binding IconSource, Converter={StaticResource ValueIfNullConverter}, ConverterParameter=Collapsed, FallbackValue=Visible, ElementName=Editor, Mode=OneWay}" Margin="0 0 0 5"/>
                 </StackPanel>
 
-                <StackPanel Orientation="Vertical" Margin="10 5">
-                    <StackPanel Orientation="Horizontal">
+                <StackPanel Orientation="Vertical" Margin="10 5 10 0">
+                    <StackPanel Orientation="Horizontal" Margin="0 0 0 5">
                         <TextBlock Text="Description: " Style="{StaticResource PropertyNameStyle}"/>
                         <TextBlock Text="(no description)" FontStyle="Italic" Foreground="#8689A1" Visibility="{Binding Package.Manifest.Description, Converter={StaticResource ValueIfNullConverter}, ConverterParameter=Visible, FallbackValue=Collapsed, ElementName=Editor, Mode=OneWay}"/>
                     </StackPanel>
-                    <FlowDocumentScrollViewer Document="{Binding Package.Manifest.Description, Converter={StaticResource MarkdownConverter}, ElementName=Editor, Mode=OneWay}"
+                    <FlowDocumentScrollViewer Document="{Binding Package.Manifest.Description, Converter={StaticResource MarkdownConverter}, ElementName=Editor, Mode=OneWay}" Margin="0 0 0 5"
                                               Visibility="{Binding Package.Manifest.Description, Converter={StaticResource ValueIfNullConverter}, ConverterParameter=Collapsed, FallbackValue=Visible, ElementName=Editor, Mode=OneWay}"
                                               VerticalScrollBarVisibility="Disabled"/>
                 </StackPanel>
 
-                <StackPanel Orientation="Vertical" Margin="10 5">
-                    <StackPanel Orientation="Horizontal">
+                <StackPanel Orientation="Vertical" Margin="10 5 10 0">
+                    <StackPanel Orientation="Horizontal" Margin="0 0 0 5">
                         <TextBlock Text="Dependencies: " Style="{StaticResource PropertyNameStyle}"/>
                         <TextBlock Text="(no dependencies)" FontStyle="Italic" Foreground="#8689A1" Visibility="{Binding Package.Manifest.Dependencies.Count, Converter={StaticResource ValueIfZeroConverter}, ConverterParameter=Visible, FallbackValue=Collapsed, ElementName=Editor, Mode=OneWay}"/>
                     </StackPanel>
@@ -62,7 +62,7 @@
                             <DataTemplate DataType="{x:Type upack:UniversalPackageDependency}">
                                 <Grid>
                                     <StackPanel Orientation="Horizontal" Visibility="{Binding ValidationError, Converter={StaticResource ValueIfNullConverter}, ConverterParameter=Visible, FallbackValue=Collapsed}">
-                                        <TextBlock Text="{Binding GroupAndName, Mode=OneWay}" FontWeight="Bold" Margin="0,0,5,0" Foreground="#282B3A"/>
+                                        <TextBlock Text="{Binding GroupAndName, Mode=OneWay}" Margin="0,0,5,0" Foreground="#282B3A"/>
                                         <TextBlock Text="{Binding Version, TargetNullValue=(latest version), Mode=OneWay}" FontStyle="{Binding Version, Converter={StaticResource ItalicIfNullConverter}, Mode=OneWay}" Foreground="#8689A1"/>
                                     </StackPanel>
                                     <TextBlock Text="{Binding RawValue}" Visibility="{Binding ValidationError, Converter={StaticResource ValueIfNullConverter}, ConverterParameter=Collapsed, FallbackValue=Visible}" Foreground="Red"/>
@@ -178,7 +178,7 @@
                 <StackPanel Orientation="Vertical" Margin="10 5 10 3">
                     <StackPanel Orientation="Horizontal">
                         <Label Content="_Description: " Target="{Binding ElementName=DescriptionText}" Style="{StaticResource PropertyNameLabelStyle}"/>
-                        <TextBlock Text="(use Markdown)" Style="{StaticResource HintTextStyle}"/>
+                        <TextBlock Style="{StaticResource HintTextStyle}">(use <Hyperlink NavigateUri="http://commonmark.org/help/" RequestNavigate="NavigateToUri">Markdown</Hyperlink>)</TextBlock>
                     </StackPanel>
                     <TextBox x:Name="DescriptionText" TabIndex="5" VerticalAlignment="Center" Text="{Binding Package.Manifest.Description, ElementName=Editor, Mode=TwoWay}" MinLines="3" AcceptsReturn="True" TextWrapping="Wrap" VerticalScrollBarVisibility="Disabled"/>
                 </StackPanel>
