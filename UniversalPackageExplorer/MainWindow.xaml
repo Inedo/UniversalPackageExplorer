@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:UniversalPackageExplorer"
         mc:Ignorable="d" Height="550" Width="770" MinHeight="450" MinWidth="500"
-        x:Name="Main" Closing="MainWindow_Closing" Closed="MainWindow_Closed"
+        x:Name="Main" Closing="MainWindow_Closing" Closed="MainWindow_Closed" Activated="MainWindow_Activated"
         DataContext="{Binding Package, ElementName=Main, Mode=OneWay}"
         Title="{Binding WindowTitlePrefix, StringFormat=\{0\} - Universal Package Explorer, FallbackValue=Universal Package Explorer}"
         Style="{StaticResource WindowStyle}">

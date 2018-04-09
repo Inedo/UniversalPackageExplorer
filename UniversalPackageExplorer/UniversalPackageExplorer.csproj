@@ -1,10 +1,13 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="..\packages\MSBuild.ILMerge.Task.1.0.5\build\MSBuild.ILMerge.Task.props" Condition="Exists('..\packages\MSBuild.ILMerge.Task.1.0.5\build\MSBuild.ILMerge.Task.props')" />
   <PropertyGroup>
     <RootNamespace>UniversalPackageExplorer</RootNamespace>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <TargetFrameworkProfile />
     <ProjectGuid>{1E546812-AA7F-4CE4-9194-F7EF4E1C90D7}</ProjectGuid>
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
   </PropertyGroup>
   <PropertyGroup>
     <ApplicationIcon>Properties\upack.ico</ApplicationIcon>
@@ -39,7 +42,9 @@
     <NoWin32Manifest>true</NoWin32Manifest>
   </PropertyGroup>
   <ItemGroup>
+    <Content Include="ILMergeOrder.txt" />
     <Content Include="Properties\upack.ico" />
+    <None Include="ILMerge.props" />
     <None Include="Resources\Fonts\OFL.txt" />
   </ItemGroup>
   <ItemGroup>
@@ -156,8 +161,8 @@
       <HintPath>..\packages\CommonMark.NET.0.15.1\lib\net45\CommonMark.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
-    <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\packages\Newtonsoft.Json.10.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
+    <Reference Include="Newtonsoft.Json, Version=11.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.11.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
@@ -180,4 +185,52 @@
   <ItemGroup />
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\packages\MSBuild.ILMerge.Task.1.0.5\build\MSBuild.ILMerge.Task.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\MSBuild.ILMerge.Task.1.0.5\build\MSBuild.ILMerge.Task.props'))" />
+    <Error Condition="!Exists('..\packages\MSBuild.ILMerge.Task.1.0.5\build\MSBuild.ILMerge.Task.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\MSBuild.ILMerge.Task.1.0.5\build\MSBuild.ILMerge.Task.targets'))" />
+  </Target>
+  <Import Project="..\packages\MSBuild.ILMerge.Task.1.0.5\build\MSBuild.ILMerge.Task.targets" Condition="Exists('..\packages\MSBuild.ILMerge.Task.1.0.5\build\MSBuild.ILMerge.Task.targets')" />
+
+  <!-- Copied from MSBuild.ILMerge.Task; modified to fix ReferencePath.CopyLocal error -->
+  <Target Name="SaveILMergeData" AfterTargets="CoreCompile">
+    <Message Text="Transitive merge" Importance="high" Condition="$(ILMergeTransitive) == 'true'" />
+
+    <!-- all copy local assemblies referenced from this project that go to the executable except the main one-->
+    <CreateItem Include="@(ReferencePath)" Condition=" '%(ReferencePath.CopyLocal)' == 'true' ">
+      <Output TaskParameter="Include"  ItemName="MergedAssemblies"/>
+    </CreateItem>
+
+    <!-- all copy local dependency assemblies-->
+    <CreateItem Include="@(ReferenceDependencyPaths)" Condition=" '%(ReferenceDependencyPaths.CopyLocal)' == 'true' ">
+      <Output TaskParameter="Include" ItemName="MergedDependencies"/>
+    </CreateItem>
+    
+    <!-- all assemblies that doesn't so we use their directories as library path -->
+    <CreateItem Include="@(ReferencePath)" Condition=" '%(ReferencePath.CopyLocal)' == 'false' ">
+      <Output TaskParameter="Include" ItemName="UnmergedAssemblies"/>
+    </CreateItem>
+
+    <!-- all content items marked as copy always or newest -->
+    <CreateItem Include="@(Content)" Condition=" '%(Content.CopyToOutputDirectory)' == 'Always' OR '%(Content.CopyToOutputDirectory)' == 'PreserveNewest' ">
+      <Output TaskParameter="Include"  ItemName="LocalContentFiles"/>
+    </CreateItem>
+
+    <!-- add the main assembly as the first one -->
+    <PropertyGroup Condition=" $(ILMergeTransitive) == 'true' ">
+      <MergedAssemblies>@(IntermediateAssembly->'%(FullPath)');@(MergedAssemblies->'%(FullPath)');@(MergedDependencies->'%(FullPath)')</MergedAssemblies>
+    </PropertyGroup>
+    <PropertyGroup Condition=" $(ILMergeTransitive) == 'false' OR $(ILMergeTransitive) == '' ">
+      <MergedAssemblies>@(IntermediateAssembly->'%(FullPath)');@(MergedAssemblies->'%(FullPath)')</MergedAssemblies>
+    </PropertyGroup>
+    
+    <PropertyGroup>
+      <!-- Ideally we should copy all not-copy-local assemblies that are not in the ILMergeLibraryPath to -->
+      <!-- a temp directory and add it to the start search path, but we keep it simple here -->
+      <UnmergedAssemblies>@(UnmergedAssemblies->'%(FullPath)')</UnmergedAssemblies>
+      <MergeOutputFile>$(TargetPath)</MergeOutputFile>
+    </PropertyGroup>
+  </Target>
 </Project>

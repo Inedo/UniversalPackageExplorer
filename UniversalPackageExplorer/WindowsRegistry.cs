@@ -25,6 +25,7 @@ namespace UniversalPackageExplorer
         public static void AssociateWithUPackFiles()
         {
             var assembly = Assembly.GetEntryAssembly();
+            var openCommand = "\"" + assembly.Location.Replace("\"", "\"\"") + "\" \"%1\"";
 
             using (var upe = Registry.CurrentUser.CreateSubKey(@"Software\Microsoft\Windows\CurrentVersion\App Paths\UniversalPackageExplorer.exe"))
             {
@@ -33,25 +34,120 @@ namespace UniversalPackageExplorer
 
             using (var upe = Registry.CurrentUser.CreateSubKey(@"Software\Classes\Applications\UniversalPackageExplorer.exe"))
             {
-                using (var openCommand = upe.CreateSubKey(@"shell\open\command"))
+                using (var command = upe.CreateSubKey(@"shell\open\command"))
                 {
-                    openCommand.SetValue(string.Empty, "\"" + assembly.Location.Replace("\"", "\"\"") + "\" \"%1\"");
+                    command.SetValue(string.Empty, openCommand);
                 }
                 using (var supportedTypes = upe.CreateSubKey(@"SupportedTypes"))
                 {
                     supportedTypes.SetValue(".upack", string.Empty, RegistryValueKind.String);
                 }
             }
+
+            string key;
+            using (var upack = Registry.CurrentUser.CreateSubKey(@"Software\Classes\.upack"))
+            {
+                key = upack.GetValue(string.Empty) as string;
+                if (string.IsNullOrEmpty(key))
+                {
+                    key = "inedo_upack_file";
+                    upack.SetValue(string.Empty, key);
+                }
+            }
+
+            using (var command = Registry.CurrentUser.CreateSubKey(@"Software\Classes\" + key + @"\shell\open\command"))
+            {
+                command.SetValue(string.Empty, openCommand);
+            }
+        }
+
+        public static bool IsAssociatedWithUPackFiles()
+        {
+            var assembly = Assembly.GetEntryAssembly();
+            var openCommand = "\"" + assembly.Location.Replace("\"", "\"\"") + "\" \"%1\"";
+
+            using (var upe = Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\App Paths\UniversalPackageExplorer.exe", false))
+            {
+                if (upe?.GetValue(string.Empty) as string != assembly.Location)
+                {
+                    return false;
+                }
+            }
+
+            using (var upe = Registry.CurrentUser.OpenSubKey(@"Software\Classes\Applications\UniversalPackageExplorer.exe", false))
+            {
+                if (upe == null)
+                {
+                    return false;
+                }
+
+                using (var command = upe.OpenSubKey(@"shell\open\command", false))
+                {
+                    if (command?.GetValue(string.Empty) as string != openCommand)
+                    {
+                        return false;
+                    }
+                }
+                using (var supportedTypes = upe.OpenSubKey(@"SupportedTypes", false))
+                {
+                    if (supportedTypes?.GetValueKind(".upack") != RegistryValueKind.String)
+                    {
+                        return false;
+                    }
+                }
+            }
+
+            string key;
+            using (var upack = Registry.CurrentUser.OpenSubKey(@"Software\Classes\.upack", false))
+            {
+                key = upack?.GetValue(string.Empty) as string;
+                if (string.IsNullOrEmpty(key))
+                {
+                    return false;
+                }
+            }
+
+            using (var command = Registry.CurrentUser.OpenSubKey(@"Software\Classes\" + key + @"\shell\open\command", false))
+            {
+                if (command?.GetValue(string.Empty) as string != openCommand)
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
 
         public static void StoreRecentEndpoints(string[] endpoints)
         {
-            Registry.CurrentUser.SetValue(@"Software\Inedo\UniversalPackageExplorer\RecentEndpoints", endpoints, RegistryValueKind.MultiString);
+            using (var upe = Registry.CurrentUser.CreateSubKey(@"Software\Inedo\UniversalPackageExplorer"))
+            {
+                upe.SetValue("RecentEndpoints", endpoints, RegistryValueKind.MultiString);
+            }
         }
 
         public static string[] LoadRecentEndpoints()
         {
-            return Registry.CurrentUser.GetValue(@"Software\Inedo\UniversalPackageExplorer\RecentEndpoints") as string[] ?? new string[0];
+            using (var upe = Registry.CurrentUser.OpenSubKey(@"Software\Inedo\UniversalPackageExplorer", false))
+            {
+                return upe?.GetValue("RecentEndpoints") as string[] ?? new string[0];
+            }
+        }
+
+        public static void StoreDontAskToAssociate()
+        {
+            using (var upe = Registry.CurrentUser.CreateSubKey(@"Software\Inedo\UniversalPackageExplorer"))
+            {
+                upe.SetValue("DontAskToAssociate", 1, RegistryValueKind.DWord);
+            }
+        }
+
+        public static bool LoadDontAskToAssociate()
+        {
+            using (var upe = Registry.CurrentUser.OpenSubKey(@"Software\Inedo\UniversalPackageExplorer", false))
+            {
+                return (int?)upe?.GetValue("DontAskToAssociate", 0) == 1;
+            }
         }
 
         public static List<RecentItem> GetRecentItems()

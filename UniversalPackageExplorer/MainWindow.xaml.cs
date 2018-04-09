@@ -141,5 +141,38 @@ namespace UniversalPackageExplorer
 
             return true;
         }
+
+        private bool alreadyActivated = false;
+        private void MainWindow_Activated(object sender, EventArgs e)
+        {
+            if (!this.alreadyActivated && !WindowsRegistry.IsAssociatedWithUPackFiles() && !WindowsRegistry.LoadDontAskToAssociate())
+            {
+                this.alreadyActivated = true;
+
+                var prompt = new ConfirmationWindow(
+                    "Associate with .upack?",
+                    "Do you want to open Universal Package files with the Universal Package Explorer by default?",
+                    "Open UPack files with UPE",
+                    "No, and don't ask me again.",
+                    "Ask me later"
+                )
+                {
+                    Width = 600,
+                    Owner = this
+                };
+                var result = prompt.ShowDialog();
+                if (result.HasValue)
+                {
+                    if (result.Value)
+                    {
+                        WindowsRegistry.AssociateWithUPackFiles();
+                    }
+                    else
+                    {
+                        WindowsRegistry.StoreDontAskToAssociate();
+                    }
+                }
+            }
+        }
     }
 }

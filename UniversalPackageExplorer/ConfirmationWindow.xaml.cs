@@ -7,15 +7,21 @@ namespace UniversalPackageExplorer
     /// </summary>
     public partial class ConfirmationWindow : Window
     {
-        public ConfirmationWindow(string title, string prompt)
+        public ConfirmationWindow(string title, string prompt, string yesText = "Yes", string noText = "No", string cancelText = "Cancel")
         {
             this.Title = title;
             this.Prompt = prompt;
+            this.YesText = yesText;
+            this.NoText = noText;
+            this.CancelText = cancelText;
 
             InitializeComponent();
         }
 
         public string Prompt { get; }
+        public string YesText { get; }
+        public string NoText { get; }
+        public string CancelText { get; }
         private bool WasCancelled = false;
 
         public new bool? ShowDialog()

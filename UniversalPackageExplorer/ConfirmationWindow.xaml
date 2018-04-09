@@ -19,9 +19,9 @@
                 <ColumnDefinition Width="Auto" MinWidth="75"/>
                 <ColumnDefinition Width="Auto" MinWidth="75"/>
             </Grid.ColumnDefinitions>
-            <Button Content="Yes" Grid.Column="1" Margin="5" Click="Button_Yes" TabIndex="1" Template="{StaticResource ButtonTemplate}"/>
-            <Button Content="No" Grid.Column="2" Margin="5" Click="Button_No" TabIndex="2" Template="{StaticResource ButtonTemplate}"/>
-            <Button IsDefault="True" IsCancel="True" Content="Cancel" Grid.Column="3" Margin="5" Click="Button_Cancel" TabIndex="3" Template="{StaticResource ButtonTemplate}"/>
+            <Button Content="{Binding YesText, ElementName=Confirmation, Mode=OneTime}" Grid.Column="1" Margin="5" Click="Button_Yes" TabIndex="1" Template="{StaticResource ButtonTemplate}"/>
+            <Button Content="{Binding NoText, ElementName=Confirmation, Mode=OneTime}" Grid.Column="2" Margin="5" Click="Button_No" TabIndex="2" Template="{StaticResource ButtonTemplate}"/>
+            <Button IsDefault="True" IsCancel="True" Content="{Binding CancelText, ElementName=Confirmation, Mode=OneTime}" Grid.Column="3" Margin="5" Click="Button_Cancel" TabIndex="3" Template="{StaticResource ButtonTemplate}"/>
         </Grid>
     </Grid>
 </Window>
