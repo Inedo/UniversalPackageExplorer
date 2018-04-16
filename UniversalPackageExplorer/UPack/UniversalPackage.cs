@@ -320,7 +320,7 @@ namespace UniversalPackageExplorer.UPack
 
             public bool TryGetValue(string key, out UniversalPackageFile value)
             {
-                if (string.IsNullOrEmpty(key))
+                if (key == null)
                 {
                     value = null;
                     return false;
@@ -335,6 +335,11 @@ namespace UniversalPackageExplorer.UPack
                 if (fullName == null)
                 {
                     throw new ArgumentNullException(nameof(fullName));
+                }
+
+                if (fullName == string.Empty)
+                {
+                    return string.Empty;
                 }
 
                 fullName = CleanSlashesRegex.Replace(fullName, "/").TrimStart('/');
