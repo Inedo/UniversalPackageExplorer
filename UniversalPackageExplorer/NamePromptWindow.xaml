@@ -15,6 +15,7 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition/>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="10"/>
         </Grid.RowDefinitions>
         <Label Content="{Binding Prompt, TargetNullValue=Enter new name:, ElementName=NamePrompt, Mode=OneTime}" Padding="5,0" Grid.Row="1"/>
         <TextBox Text="{Binding Text, ElementName=NamePrompt, Mode=TwoWay}" Margin="5" Grid.Row="2" TabIndex="0"/>
@@ -24,6 +25,7 @@
                 <ColumnDefinition/>
                 <ColumnDefinition Width="Auto" MinWidth="75"/>
                 <ColumnDefinition Width="Auto" MinWidth="75"/>
+                <ColumnDefinition Width="20"/>
             </Grid.ColumnDefinitions>
             <Button IsDefault="True" IsEnabled="{Binding ValidationError, Converter={StaticResource ValueIfNullConverter}, ConverterParameter=True, FallbackValue=False, ElementName=NamePrompt, Mode=OneWay}" Content="{Binding CommandName, Mode=OneTime, FallbackValue=OK, ElementName=NamePrompt}" Grid.Column="1" Margin="5" Click="Button_Submit" TabIndex="1" Template="{StaticResource ButtonTemplate}"/>
             <Button IsCancel="True" Content="Cancel" Grid.Column="2" Margin="5" Click="Button_Cancel" TabIndex="2" Template="{StaticResource ButtonTemplate}"/>

@@ -10,6 +10,7 @@
         <Grid.RowDefinitions>
             <RowDefinition/>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="10"/>
         </Grid.RowDefinitions>
         <TextBlock Text="{Binding Prompt, ElementName=Confirmation, Mode=OneTime}" TextWrapping="Wrap" Margin="5" HorizontalAlignment="Center" VerticalAlignment="Center"/>
         <Grid Grid.Row="1">
@@ -18,6 +19,7 @@
                 <ColumnDefinition Width="Auto" MinWidth="75"/>
                 <ColumnDefinition Width="Auto" MinWidth="75"/>
                 <ColumnDefinition Width="Auto" MinWidth="75"/>
+                <ColumnDefinition Width="20"/>
             </Grid.ColumnDefinitions>
             <Button Content="{Binding YesText, ElementName=Confirmation, Mode=OneTime}" Grid.Column="1" Margin="5" Click="Button_Yes" TabIndex="1" Template="{StaticResource ButtonTemplate}"/>
             <Button Content="{Binding NoText, ElementName=Confirmation, Mode=OneTime}" Grid.Column="2" Margin="5" Click="Button_No" TabIndex="2" Template="{StaticResource ButtonTemplate}"/>
