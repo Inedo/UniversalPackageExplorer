@@ -37,9 +37,7 @@
     <StartupObject>UniversalPackageExplorer.App</StartupObject>
   </PropertyGroup>
   <PropertyGroup />
-  <PropertyGroup>
-    <NoWin32Manifest>true</NoWin32Manifest>
-  </PropertyGroup>
+  <PropertyGroup />
   <ItemGroup>
     <Content Include="Properties\upack.ico" />
     <None Include="Resources\Fonts\OFL.txt" />
