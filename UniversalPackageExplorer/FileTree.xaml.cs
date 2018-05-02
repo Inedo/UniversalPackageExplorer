@@ -71,7 +71,7 @@ namespace UniversalPackageExplorer
             }
             if (this.Tree.SelectedItem != null)
             {
-                this.GetInTree((UniversalPackageFile)((TreeViewItem)this.Tree.SelectedItem).DataContext).IsSelected = false;
+                this.GetInTree((UniversalPackageFile)this.Tree.SelectedItem).IsSelected = false;
             }
         }
 
