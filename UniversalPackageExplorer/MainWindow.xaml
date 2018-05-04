@@ -104,7 +104,7 @@
                 <Separator/>
                 <MenuItem Command="local:Commands.Exit"/>
             </MenuItem>
-            <MenuItem Header="_Content" IsEnabled="{Binding Package, Converter={StaticResource ValueIfNullConverter}, ConverterParameter=True, FallbackValue=False, ElementName=Main, Mode=OneWay}">
+            <MenuItem Header="_Content" IsEnabled="{Binding IsPackageOpen, ElementName=Main, Mode=OneWay}">
                 <MenuItem Command="local:Commands.ViewFileContent"/>
                 <MenuItem Command="local:Commands.OpenFileInWindowsShell"/>
                 <Separator/>
