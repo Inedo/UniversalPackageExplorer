@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using Inedo.UPack;
+using Newtonsoft.Json;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -8,6 +9,7 @@ using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -64,7 +66,14 @@ namespace UniversalPackageExplorer.UPack
             {
                 await stream.CopyToAsync(tempFile);
 
-                return new UniversalPackage(tempFile);
+                tempFile.Position = 0;
+                byte[] hash;
+                using (var sha1 = SHA1.Create())
+                {
+                    hash = sha1.ComputeHash(tempFile);
+                }
+
+                return new UniversalPackage(tempFile) { OriginalHash = new HexString(hash) };
             }
             catch
             {
@@ -89,7 +98,14 @@ namespace UniversalPackageExplorer.UPack
             {
                 await stream.CopyToAsync(tempFile);
 
-                return new UniversalPackage(tempFile) { FullName = fullName };
+                tempFile.Position = 0;
+                byte[] hash;
+                using (var sha1 = SHA1.Create())
+                {
+                    hash = sha1.ComputeHash(tempFile);
+                }
+
+                return new UniversalPackage(tempFile) { FullName = fullName, OriginalHash = new HexString(hash) };
             }
             catch
             {
@@ -139,6 +155,7 @@ namespace UniversalPackageExplorer.UPack
                 }
             }
         }
+        internal HexString? OriginalHash { get; private set; }
         private Lazy<UniversalPackageManifest> manifest;
         public UniversalPackageManifest Manifest => this.manifest.Value;
         public FileCollection Metadata { get; }

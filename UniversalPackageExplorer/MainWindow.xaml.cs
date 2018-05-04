@@ -42,12 +42,37 @@ namespace UniversalPackageExplorer
                 if (!ReferenceEquals(this.package, value))
                 {
                     this.package?.Dispose();
+                    if (value != null)
+                    {
+                        value.PropertyChanged += Package_PropertyChanged;
+                    }
                 }
                 this.package = value;
                 this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Package)));
                 this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsPackageOpen)));
+                this.UpdateStatusText();
             }
         }
+
+        private void Package_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(UniversalPackage.Dirty))
+            {
+                this.UpdateStatusText();
+            }
+        }
+
+        private void UpdateStatusText()
+        {
+            if (this.Package == null || this.Package.Dirty || this.Package.OriginalHash == null)
+            {
+                this.statusText.Content = "Ready";
+                return;
+            }
+
+            this.statusText.Content = "SHA-1: " + this.Package.OriginalHash;
+        }
+
         public bool IsPackageOpen => this.Package != null;
 
         public List<RecentItem> RecentFiles => WindowsRegistry.GetRecentItems();
