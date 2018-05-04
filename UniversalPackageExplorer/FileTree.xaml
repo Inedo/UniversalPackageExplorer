@@ -32,7 +32,7 @@
                 <MenuItem Command="local:Commands.Delete"/>
             </ContextMenu>
             <HierarchicalDataTemplate x:Key="FileTreeTemplate" DataType="{x:Type upack:UniversalPackageFile}" ItemsSource="{Binding Children}">
-                <local:FileTreeItem ContextMenuOpening="Tree_ContextMenuFocus" DataContext="{Binding}"
+                <local:FileTreeItem ContextMenuOpening="Tree_ContextMenuFocus" DataContext="{Binding}" MouseDoubleClick="FileTreeItem_MouseDoubleClick"
                                             ContextMenu="{Binding Children, Converter={StaticResource ValueIfNullConverter}, ConverterParameter={StaticResource TreeFileContextMenu}, FallbackValue={StaticResource TreeFolderContextMenu}, Mode=OneWay}"
                                             AllowDrop="True" Drop="Tree_Drop" DragOver="Tree_DragOver" MouseLeave="Tree_MouseLeave"/>
             </HierarchicalDataTemplate>

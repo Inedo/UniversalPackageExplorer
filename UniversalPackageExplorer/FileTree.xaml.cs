@@ -295,5 +295,17 @@ namespace UniversalPackageExplorer
                 });
             }
         }
+
+        private void FileTreeItem_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            if (e.Source != sender)
+            {
+                return;
+            }
+
+            this.FocusInTree((UniversalPackageFile)this.Tree.SelectedItem);
+
+            Commands.OpenFileInWindowsShell.Execute(this, this);
+        }
     }
 }
