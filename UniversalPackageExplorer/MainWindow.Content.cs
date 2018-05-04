@@ -1,9 +1,9 @@
 ﻿using Microsoft.Win32;
 using System;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
-using System.Windows;
 using System.Windows.Input;
 using UniversalPackageExplorer.UPack;
 
@@ -42,16 +42,24 @@ namespace UniversalPackageExplorer
             this.OperationsAllowed = false;
             Task.Run(async () =>
             {
+                string fullName;
                 if (file.Collection == this.Package.Metadata)
                 {
-                    var fullName = await file.ExportTempFileAsync();
-                    Process.Start(new ProcessStartInfo(fullName) { UseShellExecute = true }).Dispose();
+                    fullName = await file.ExportTempFileAsync();
                 }
                 else
                 {
                     var tempDir = await file.Collection.Root.ExportTempFileAsync();
-                    var fullName = Path.Combine(tempDir, file.FullName);
+                    fullName = Path.Combine(tempDir, file.FullName);
+                }
+
+                try
+                {
                     Process.Start(new ProcessStartInfo(fullName) { UseShellExecute = true }).Dispose();
+                }
+                catch (Win32Exception ex) when (ex.NativeErrorCode == 1155) // ERROR_NO_ASSOCIATION
+                {
+                    Process.Start("rundll32.exe", "shell32.dll, OpenAs_RunDLL " + fullName).Dispose();
                 }
 
                 await this.Dispatcher.InvokeAsync(() => this.OperationsAllowed = true);
