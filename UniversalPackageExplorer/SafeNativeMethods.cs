@@ -12,13 +12,13 @@ namespace UniversalPackageExplorer
     {
         #region AssocQueryString
         // From https://stackoverflow.com/a/17773402/2664560
-        [DllImport("Shlwapi.dll", CharSet = CharSet.Unicode)]
+        [DllImport("Shlwapi.dll", CharSet = CharSet.Unicode, EntryPoint = "AssocQueryStringW", CallingConvention = CallingConvention.Winapi)]
         public static extern uint AssocQueryString(
             AssocF flags,
             AssocStr str,
-            string pszAssoc,
-            string pszExtra,
-            [Out] StringBuilder pszOut,
+            [MarshalAs(UnmanagedType.LPWStr)] string pszAssoc,
+            [MarshalAs(UnmanagedType.LPWStr)] string pszExtra,
+            [MarshalAs(UnmanagedType.LPWStr)] StringBuilder pszOut,
             ref uint pcchOut
         );
 
@@ -96,10 +96,11 @@ namespace UniversalPackageExplorer
 
         #region ExtractAssociatedIcon
         // Adapted from the System.Drawing .NET reference source
-        [DllImport("Shell32.dll", CharSet = CharSet.Auto, BestFitMapping = false, EntryPoint = "ExtractAssociatedIcon")]
-        public static extern IntPtr ExtractAssociatedIcon(IntPtr hInst, StringBuilder iconPath, ref int index);
+        [DllImport("Shell32.dll", CharSet = CharSet.Unicode, EntryPoint = "ExtractAssociatedIconW")]
+        public static extern IntPtr ExtractAssociatedIcon(IntPtr hInst, [MarshalAs(UnmanagedType.LPWStr)] StringBuilder iconPath, ref int index);
 
-        [DllImport("User32.dll", SetLastError = true, ExactSpelling = true, EntryPoint = "DestroyIcon", CharSet = CharSet.Auto)]
+        [DllImport("User32.dll", SetLastError = true, CallingConvention = CallingConvention.Winapi)]
+        [return: MarshalAs(UnmanagedType.Bool)]
         private static extern bool DestroyIcon(IntPtr hIcon);
 
         public static ImageSource ExtractAssociatedIcon(string path)
