@@ -7,7 +7,8 @@
         xmlns:converters="clr-namespace:UniversalPackageExplorer.Converters"
         mc:Ignorable="d"
         x:Name="NamePrompt" Style="{StaticResource WindowStyle}"
-        Title="Enter Name" Height="200" Width="300" WindowStartupLocation="CenterOwner">
+        Title="Enter Name" Height="200" Width="300" WindowStartupLocation="CenterOwner"
+        Activated="NamePrompt_Activated">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition/>
@@ -18,7 +19,7 @@
             <RowDefinition Height="10"/>
         </Grid.RowDefinitions>
         <Label Content="{Binding Prompt, TargetNullValue=Enter new name:, ElementName=NamePrompt, Mode=OneTime}" Padding="5,0" Grid.Row="1"/>
-        <TextBox Text="{Binding Text, ElementName=NamePrompt, Mode=TwoWay}" Margin="5" Grid.Row="2" TabIndex="0"/>
+        <TextBox Text="{Binding Text, ElementName=NamePrompt, Mode=TwoWay}" x:Name="nameBox" Margin="5" Grid.Row="2" TabIndex="0"/>
         <Label Content="{Binding ValidationError, ElementName=NamePrompt, Mode=OneWay}" HorizontalContentAlignment="Center" Foreground="Red" Grid.Row="3"/>
         <Grid Grid.Row="4">
             <Grid.ColumnDefinitions>

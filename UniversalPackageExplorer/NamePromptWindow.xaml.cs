@@ -110,5 +110,10 @@ namespace UniversalPackageExplorer
                 }
             };
         }
+
+        private void NamePrompt_Activated(object sender, EventArgs e)
+        {
+            this.nameBox.Focus();
+        }
     }
 }
