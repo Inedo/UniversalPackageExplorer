@@ -137,7 +137,7 @@
             <local:FileTree Grid.Column="0" Grid.Row="1" x:Name="FileTree" BorderThickness="0" Package="{Binding}" OperationsAllowed="{Binding OperationsAllowed, ElementName=Main}"/>
             <TextBlock Grid.Column="2" Grid.Row="0" Text="Package Metadata" Style="{StaticResource HeaderTextStyle}"/>
             <GridSplitter Grid.Column="1" Grid.RowSpan="2" Width="5" VerticalAlignment="Stretch" HorizontalAlignment="Center"/>
-            <local:ManifestEditor Grid.Column="2" Grid.Row="1" Package="{Binding}"/>
+            <local:ManifestEditor Grid.Column="2" Grid.Row="1" x:Name="ManifestEditor" Package="{Binding}"/>
         </Grid>
         <Grid Grid.Row="1" Visibility="{Binding Package, Converter={StaticResource ValueIfNullConverter}, ConverterParameter=Visible, FallbackValue=Collapsed, ElementName=Main}">
             <Grid.RowDefinitions>

@@ -12,10 +12,11 @@ namespace UniversalPackageExplorer
     partial class MainWindow
     {
         private bool IsUPackJsonSelected => this.FileTree.SelectedItem != null && this.FileTree.SelectedItem.Collection == this.Package.Metadata && string.Equals(this.FileTree.SelectedItem.FullName, "upack.json", StringComparison.OrdinalIgnoreCase);
+        private bool IsManifestEditorSelected => this.ManifestEditor.IsKeyboardFocusWithin;
 
         private void Content_CanOpenFile(object sender, CanExecuteRoutedEventArgs e)
         {
-            e.CanExecute = this.FileTree.SelectedItem != null && this.FileTree.SelectedItem.Children == null;
+            e.CanExecute = this.FileTree.SelectedItem != null && this.FileTree.SelectedItem.Children == null && !this.IsManifestEditorSelected;
         }
         private void Content_ViewFileContent(object sender, ExecutedRoutedEventArgs e)
         {
@@ -314,7 +315,7 @@ namespace UniversalPackageExplorer
 
         private void Content_CanRename(object sender, CanExecuteRoutedEventArgs e)
         {
-            e.CanExecute = this.OperationsAllowed && this.FileTree.SelectedItem != null && !this.IsUPackJsonSelected;
+            e.CanExecute = this.OperationsAllowed && this.FileTree.SelectedItem != null && !this.IsUPackJsonSelected && !this.IsManifestEditorSelected;
         }
         private void Content_Rename(object sender, ExecutedRoutedEventArgs e)
         {
