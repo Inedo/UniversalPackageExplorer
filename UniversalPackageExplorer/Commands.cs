@@ -39,5 +39,7 @@ namespace UniversalPackageExplorer
         public static RoutedUICommand FileReference { get; } = new RoutedUICommand("UPack File _Reference", nameof(FileReference), typeof(Commands));
         public static RoutedUICommand About { get; } = new RoutedUICommand("_About…", nameof(About), typeof(Commands));
         #endregion
+
+        public static RoutedUICommand AssociateWithUPack { get; } = new RoutedUICommand("Associate with .upack files", nameof(AssociateWithUPack), typeof(Commands));
     }
 }

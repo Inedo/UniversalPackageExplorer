@@ -71,6 +71,8 @@
                         Executed="Help_FileReference"/>
         <CommandBinding Command="local:Commands.About"
                         Executed="Help_About"/>
+        <CommandBinding Command="local:Commands.AssociateWithUPack"
+                        Executed="AssociateWithUPack"/>
     </Window.CommandBindings>
     <Grid>
         <Grid.RowDefinitions>
@@ -164,6 +166,9 @@
         </Grid>
         <StatusBar Grid.Row="2" FontFamily="./Resources/Fonts/#Karla">
             <StatusBarItem x:Name="statusText" Content="Ready"/>
+            <StatusBarItem Visibility="{Binding WasAssociationDeclined, ElementName=Main, Converter={StaticResource BooleanToVisibilityConverter}}" HorizontalAlignment="Right">
+                <Hyperlink Command="local:Commands.AssociateWithUPack">Associate with .upack files</Hyperlink>
+            </StatusBarItem>
         </StatusBar>
     </Grid>
 </Window>

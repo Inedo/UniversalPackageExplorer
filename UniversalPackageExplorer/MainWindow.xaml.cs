@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.IO;
-using System.Reflection;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Input;
 using System.Windows.Shell;
 using UniversalPackageExplorer.UPack;
 
@@ -52,6 +51,8 @@ namespace UniversalPackageExplorer
         public bool IsPackageOpen => this.Package != null;
 
         public List<RecentItem> RecentFiles => WindowsRegistry.GetRecentItems();
+
+        public bool WasAssociationDeclined => !WindowsRegistry.IsAssociatedWithUPackFiles();
 
         private bool operationsAllowed = true;
         public bool OperationsAllowed
@@ -149,29 +150,35 @@ namespace UniversalPackageExplorer
             {
                 this.alreadyActivated = true;
 
-                var prompt = new ConfirmationWindow(
-                    "Associate with .upack?",
-                    "Do you want to open Universal Package files with the Universal Package Explorer by default?",
-                    "Open UPack files with UPE",
-                    "No, and don't ask me again.",
-                    "Ask me later"
-                )
+                Commands.AssociateWithUPack.Execute(this, this);
+            }
+        }
+
+        private void AssociateWithUPack(object sender, ExecutedRoutedEventArgs e)
+        {
+            var prompt = new ConfirmationWindow(
+                "Associate with .upack?",
+                "Do you want to open Universal Package files with the Universal Package Explorer by default?",
+                "Open UPack files with UPE",
+                "No, and don't ask me again.",
+                "Ask me later"
+            )
+            {
+                Width = 600,
+                Owner = this
+            };
+            var result = prompt.ShowDialog();
+            if (result.HasValue)
+            {
+                if (result.Value)
                 {
-                    Width = 600,
-                    Owner = this
-                };
-                var result = prompt.ShowDialog();
-                if (result.HasValue)
-                {
-                    if (result.Value)
-                    {
-                        WindowsRegistry.AssociateWithUPackFiles();
-                    }
-                    else
-                    {
-                        WindowsRegistry.StoreDontAskToAssociate();
-                    }
+                    WindowsRegistry.AssociateWithUPackFiles();
                 }
+                else
+                {
+                    WindowsRegistry.StoreDontAskToAssociate();
+                }
+                this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(WasAssociationDeclined)));
             }
         }
     }
