@@ -28,6 +28,7 @@ namespace UniversalPackageExplorer
         public static RoutedUICommand NewFile { get; } = new RoutedUICommand("_New File…", nameof(NewFile), typeof(Commands));
         public static RoutedUICommand ExistingFile { get; } = new RoutedUICommand("_Existing File…", nameof(ExistingFile), typeof(Commands));
         public static RoutedUICommand NewFolder { get; } = new RoutedUICommand("New _Folder…", nameof(NewFolder), typeof(Commands));
+        public static RoutedUICommand ExistingFolder { get; } = new RoutedUICommand("E_xisting Folder…", nameof(ExistingFolder), typeof(Commands));
         #endregion
 
         public static RoutedUICommand Rename { get; } = new RoutedUICommand("_Rename…", nameof(Rename), typeof(Commands), new InputGestureCollection { new KeyGesture(Key.F2) });

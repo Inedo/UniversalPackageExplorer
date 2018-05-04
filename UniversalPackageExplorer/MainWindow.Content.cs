@@ -235,6 +235,75 @@ namespace UniversalPackageExplorer
             }
         }
 
+        private void Content_ExistingFolder(object sender, ExecutedRoutedEventArgs e)
+        {
+            var referenceFile = this.FileTree.SelectedItem;
+            var collection = referenceFile == null ? this.Package.Files : referenceFile.Collection;
+            var prefix = referenceFile == null ? string.Empty : referenceFile.FullName.Substring(0, referenceFile.FullName.LastIndexOf('/') + 1);
+
+            var dialog = new System.Windows.Forms.FolderBrowserDialog
+            {
+                ShowNewFolderButton = false
+            };
+            if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+            {
+                this.OperationsAllowed = false;
+                var folderName = dialog.SelectedPath;
+                Task.Run(async () =>
+                {
+                    UniversalPackageFile rootFolder;
+                    try
+                    {
+                        rootFolder = await collection.CreateDirectoryAsync(prefix + Path.GetFileName(folderName));
+                    }
+                    catch (ArgumentException)
+                    {
+                        var name = await this.Dispatcher.InvokeAsync(() =>
+                        {
+                            var prompt = new NamePromptWindow("Existing File", "New file name:", NamePromptWindow.CreateNameValidator(true, collection, collection == this.Package.Metadata, prefix))
+                            {
+                                Text = Path.GetFileName(folderName),
+                                Owner = this
+                            };
+
+                            if (prompt.ShowDialog() == true)
+                            {
+                                return prompt.Text;
+                            }
+
+                            return null;
+                        });
+
+                        if (name == null)
+                        {
+                            rootFolder = null;
+                        }
+                        else
+                        {
+                            rootFolder = await collection.CreateDirectoryAsync(prefix + Path.GetFileName(folderName));
+                        }
+                    }
+
+                    if (rootFolder == null)
+                    {
+                        await this.Dispatcher.InvokeAsync(() =>
+                        {
+                            this.OperationsAllowed = true;
+                        });
+                        return;
+                    }
+
+                    await rootFolder.ImportFromFileSystemAsync(folderName);
+
+                    await this.Dispatcher.InvokeAsync(() =>
+                    {
+                        this.FocusInTree(rootFolder);
+                        this.OperationsAllowed = true;
+                    });
+                });
+            }
+        }
+
         private void Content_CanRename(object sender, CanExecuteRoutedEventArgs e)
         {
             e.CanExecute = this.OperationsAllowed && this.FileTree.SelectedItem != null && !this.IsUPackJsonSelected;

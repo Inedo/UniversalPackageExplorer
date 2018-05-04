@@ -205,6 +205,24 @@ namespace UniversalPackageExplorer.UPack
             this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Length)));
         }
 
+        public async Task ImportFromFileSystemAsync(string folderName)
+        {
+            foreach (var dir in Directory.EnumerateDirectories(folderName))
+            {
+                var subdir = await this.Collection.CreateDirectoryAsync(this.FullName + Path.GetFileName(dir) + '/');
+                await subdir.ImportFromFileSystemAsync(dir);
+            }
+
+            foreach (var fileName in Directory.EnumerateFiles(folderName))
+            {
+                var file = await this.Collection.CreateFileAsync(this.FullName + Path.GetFileName(fileName));
+                using (var stream = new FileStream(fileName, FileMode.Open, FileAccess.Read, FileShare.Read, 4096, FileOptions.Asynchronous | FileOptions.SequentialScan))
+                {
+                    await file.CopyFromAsync(stream);
+                }
+            }
+        }
+
         private sealed class WriteStream : Stream
         {
             private readonly MemoryStream inner = new MemoryStream();

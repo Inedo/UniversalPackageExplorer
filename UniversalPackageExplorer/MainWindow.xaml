@@ -112,6 +112,7 @@
                     <MenuItem Command="local:Commands.NewFile"/>
                     <MenuItem Command="local:Commands.ExistingFile"/>
                     <MenuItem Command="local:Commands.NewFolder"/>
+                    <MenuItem Command="local:Commands.ExistingFolder"/>
                 </MenuItem>
                 <MenuItem Command="local:Commands.Rename"/>
                 <MenuItem Command="local:Commands.Delete"/>
