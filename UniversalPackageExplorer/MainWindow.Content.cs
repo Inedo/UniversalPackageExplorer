@@ -267,13 +267,13 @@ namespace UniversalPackageExplorer
 
         private void Content_CanDelete(object sender, CanExecuteRoutedEventArgs e)
         {
-            e.CanExecute = this.OperationsAllowed && this.FileTree.SelectedItem != null && !this.IsUPackJsonSelected;
+            e.CanExecute = this.OperationsAllowed && this.FileTree.SelectedItem != null && !this.IsUPackJsonSelected && !this.IsManifestEditorSelected;
         }
         private void Content_Delete(object sender, ExecutedRoutedEventArgs e)
         {
             var file = this.FileTree.SelectedItem;
 
-            var confirm = new ConfirmationWindow(file.Children == null ? "Delete file?" : "Delete folder?", $"Are you sure you want to delete '{file.Name}'? This cannot be undone.")
+            var confirm = new ConfirmationWindow(file.Children == null ? "Delete file?" : "Delete folder?", $"Are you sure you want to delete '{file.Name}'? This cannot be undone.", cancelText: null)
             {
                 Owner = this
             };
