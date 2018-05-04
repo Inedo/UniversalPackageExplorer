@@ -150,7 +150,27 @@ namespace UniversalPackageExplorer
         }
         private void File_Publish(object sender, ExecutedRoutedEventArgs e)
         {
-            throw new NotImplementedException();
+            var dialog = new PublishWindow { Owner = this };
+            dialog.Show();
+
+            this.OperationsAllowed = false;
+            Task.Run(async () =>
+            {
+                var tempCopy = await this.Package.CopyToTempAsync();
+
+                await this.Dispatcher.InvokeAsync(() =>
+                {
+                    this.OperationsAllowed = true;
+
+                    if (!dialog.IsVisible)
+                    {
+                        tempCopy.Dispose();
+                        return;
+                    }
+
+                    dialog.FileToUpload = tempCopy;
+                });
+            });
         }
 
         private async void File_OpenRecentFile(object sender, ExecutedRoutedEventArgs e)

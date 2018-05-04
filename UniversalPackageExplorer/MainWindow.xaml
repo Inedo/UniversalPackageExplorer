@@ -39,7 +39,8 @@
                         CanExecute="File_CanSaveAs"
                         Executed="File_SaveAs"/>
         <CommandBinding Command="local:Commands.Publish"
-                        CanExecute="File_CanPublish"/>
+                        CanExecute="File_CanPublish"
+                        Executed="File_Publish"/>
         <CommandBinding Command="local:Commands.OpenRecentFile"
                         Executed="File_OpenRecentFile"/>
         <CommandBinding Command="local:Commands.Exit"

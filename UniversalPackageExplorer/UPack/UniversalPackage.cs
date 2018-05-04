@@ -193,6 +193,24 @@ namespace UniversalPackageExplorer.UPack
             this.Dirty = false;
         }
 
+        internal async Task<FileStream> CopyToTempAsync()
+        {
+            var tempFile = CreateTempFile();
+            try
+            {
+                this.tempFile.Position = 0;
+                await this.tempFile.CopyToAsync(tempFile);
+                tempFile.Position = 0;
+            }
+            catch
+            {
+                try { tempFile.Dispose(); } catch { }
+                throw;
+            }
+
+            return tempFile;
+        }
+
         public void Dispose()
         {
             this.tempFile.Dispose();
