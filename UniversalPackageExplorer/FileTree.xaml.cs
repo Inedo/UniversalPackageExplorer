@@ -46,7 +46,7 @@ namespace UniversalPackageExplorer
 
         public UniversalPackageFile SelectedItem
         {
-            get => (UniversalPackageFile)this.Tree.SelectedItem;
+            get => this.Tree.SelectedItem as UniversalPackageFile;
             set
             {
                 if (value != null)
@@ -69,9 +69,9 @@ namespace UniversalPackageExplorer
             {
                 return;
             }
-            if (this.Tree.SelectedItem != null)
+            if (this.SelectedItem != null)
             {
-                this.GetInTree((UniversalPackageFile)this.Tree.SelectedItem).IsSelected = false;
+                this.GetInTree(this.SelectedItem).IsSelected = false;
             }
         }
 
@@ -272,7 +272,7 @@ namespace UniversalPackageExplorer
 
         private void FocusInTree(UniversalPackageFile file)
         {
-            this.GetInTree(file).Focus();
+            this.GetInTree(file)?.Focus();
         }
 
         private void Tree_MouseLeave(object sender, MouseEventArgs e)

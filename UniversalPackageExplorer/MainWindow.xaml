@@ -58,6 +58,8 @@
                         Executed="Content_NewFile"/>
         <CommandBinding Command="local:Commands.ExistingFile"
                         Executed="Content_ExistingFile"/>
+        <CommandBinding Command="local:Commands.ExistingFolder"
+                        Executed="Content_ExistingFolder"/>
         <CommandBinding Command="local:Commands.NewFolder"
                         Executed="Content_NewFolder"/>
         <CommandBinding Command="local:Commands.Rename"

@@ -42,6 +42,7 @@
                 <MenuItem Command="local:Commands.NewFile"/>
                 <MenuItem Command="local:Commands.ExistingFile"/>
                 <MenuItem Command="local:Commands.NewFolder"/>
+                <MenuItem Command="local:Commands.ExistingFolder"/>
             </ContextMenu>
         </TreeView.ContextMenu>
         <TreeView.Items>
