@@ -87,8 +87,10 @@ namespace UniversalPackageExplorer
             {
                 this.operationsAllowed = value;
                 this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(OperationsAllowed)));
+                this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(OperationsNotAllowed)));
             }
         }
+        public bool OperationsNotAllowed => !this.operationsAllowed;
 
         private void OpenFile(string fullName)
         {

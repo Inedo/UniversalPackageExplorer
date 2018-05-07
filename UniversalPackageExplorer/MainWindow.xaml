@@ -58,16 +58,19 @@
                         Executed="Content_NewFile"/>
         <CommandBinding Command="local:Commands.ExistingFile"
                         Executed="Content_ExistingFile"/>
-        <CommandBinding Command="local:Commands.ExistingFolder"
-                        Executed="Content_ExistingFolder"/>
         <CommandBinding Command="local:Commands.NewFolder"
                         Executed="Content_NewFolder"/>
+        <CommandBinding Command="local:Commands.ExistingFolder"
+                        Executed="Content_ExistingFolder"/>
         <CommandBinding Command="local:Commands.Rename"
                         CanExecute="Content_CanRename"
                         Executed="Content_Rename"/>
         <CommandBinding Command="local:Commands.Delete"
                         CanExecute="Content_CanDelete"
                         Executed="Content_Delete"/>
+        <CommandBinding Command="local:Commands.RemoveFolder"
+                        CanExecute="Content_CanRemoveFolder"
+                        Executed="Content_RemoveFolder"/>
         <CommandBinding Command="local:Commands.ProjectHome"
                         Executed="Help_ProjectHome"/>
         <CommandBinding Command="local:Commands.FileReference"
@@ -119,6 +122,7 @@
                 </MenuItem>
                 <MenuItem Command="local:Commands.Rename"/>
                 <MenuItem Command="local:Commands.Delete"/>
+                <MenuItem Command="local:Commands.RemoveFolder"/>
             </MenuItem>
             <MenuItem Header="_Help">
                 <MenuItem Command="local:Commands.ProjectHome"/>
@@ -167,6 +171,9 @@
                 <Button Grid.Row="2" Command="local:Commands.OpenFromFeed" Content="Open a package from online feed" Style="{StaticResource QuickStartButtonStyle}"/>
                 <Button Grid.Row="3" Command="local:Commands.New" Content="Create a new package" Style="{StaticResource QuickStartButtonStyle}"/>
             </Grid>
+        </Grid>
+        <Grid Grid.Row="1" Visibility="{Binding OperationsNotAllowed, Converter={StaticResource BooleanToVisibilityConverter}, ElementName=Main, Mode=OneWay}" Background="#ccffffff">
+            <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center">Processing...</TextBlock>
         </Grid>
         <StatusBar Grid.Row="2" FontFamily="./Resources/Fonts/#Karla">
             <StatusBarItem x:Name="statusText" Content="Ready"/>

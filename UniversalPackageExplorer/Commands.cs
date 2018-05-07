@@ -33,6 +33,7 @@ namespace UniversalPackageExplorer
 
         public static RoutedUICommand Rename { get; } = new RoutedUICommand("_Rename…", nameof(Rename), typeof(Commands), new InputGestureCollection { new KeyGesture(Key.F2) });
         public static RoutedUICommand Delete { get; } = new RoutedUICommand("_Delete", nameof(Delete), typeof(Commands), new InputGestureCollection { new KeyGesture(Key.Delete) });
+        public static RoutedUICommand RemoveFolder { get; } = new RoutedUICommand("Re_move folder (keep contents)", nameof(RemoveFolder), typeof(Commands), new InputGestureCollection { new KeyGesture(Key.Delete, ModifierKeys.Shift) });
         #endregion
 
         #region Help Menu

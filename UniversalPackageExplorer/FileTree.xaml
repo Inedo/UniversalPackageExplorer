@@ -22,6 +22,7 @@
                 <Separator/>
                 <MenuItem Command="local:Commands.Rename"/>
                 <MenuItem Command="local:Commands.Delete"/>
+                <MenuItem Command="local:Commands.RemoveFolder"/>
             </ContextMenu>
             <ContextMenu x:Key="TreeFileContextMenu">
                 <MenuItem Command="local:Commands.ViewFileContent"/>

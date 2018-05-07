@@ -3,6 +3,7 @@ using System;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using UniversalPackageExplorer.UPack;
@@ -361,6 +362,36 @@ namespace UniversalPackageExplorer
                 this.OperationsAllowed = false;
                 Task.Run(async () =>
                 {
+                    await file.DeleteAsync();
+                    await this.Dispatcher.InvokeAsync(() => this.OperationsAllowed = true);
+                });
+            }
+        }
+
+        private void Content_CanRemoveFolder(object sender, CanExecuteRoutedEventArgs e)
+        {
+            e.CanExecute = this.OperationsAllowed && this.FileTree.SelectedItem != null && this.FileTree.SelectedItem.Children != null && !this.IsUPackJsonSelected && !this.IsManifestEditorSelected;
+        }
+        private void Content_RemoveFolder(object sender, ExecutedRoutedEventArgs e)
+        {
+            var file = this.FileTree.SelectedItem;
+
+            var confirm = new ConfirmationWindow("Remove folder?", $"Are you sure you want to move the contents of '{file.Name}' to the parent folder? This cannot be undone.", cancelText: null)
+            {
+                Owner = this
+            };
+
+            if (confirm.ShowDialog() == true)
+            {
+                this.OperationsAllowed = false;
+                Task.Run(async () =>
+                {
+                    var dir = file.FullName.Substring(0, file.FullName.Length - file.Name.Length - 1);
+                    var children = file.Children.ToArray();
+                    foreach (var c in children)
+                    {
+                        await c.RenameAsync(dir + c.Name);
+                    }
                     await file.DeleteAsync();
                     await this.Dispatcher.InvokeAsync(() => this.OperationsAllowed = true);
                 });
