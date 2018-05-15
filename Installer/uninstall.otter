@@ -23,7 +23,7 @@
 
 	Ensure-RegistryKey
 	(
-		Hive: LocalMachine,
+		Hive: CurrentUser,
 		Key: SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\UniversalPackageExplorer,
 		Exists: false
 	);
