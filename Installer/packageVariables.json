@@ -1,0 +1,7 @@
+{
+	"TargetDirectory": {
+		"type": "text",
+		"value": "$PathCombine($SpecialWindowsPath(LocalApplicationData), Inedo, UniversalPackageExplorer)",
+		"description": "The root install directory for Universal Package Explorer."
+	}
+}

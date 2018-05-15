@@ -1,0 +1,30 @@
+##AH:EvaluateStatementDescriptions
+
+# Removing Universal Package Explorer files
+{
+	Romp::Delete-Contents;
+}
+
+# Cleaning registry
+{
+	Ensure-RegistryKey
+	(
+		Hive: CurrentUser,
+		Key: Software\Inedo\UniversalPackageExplorer,
+		Exists: false
+	);
+
+	Ensure-RegistryKey
+	(
+		Hive: CurrentUser,
+		Key: Software\Classes\Applications\UniversalPackageExplorer.exe,
+		Exists: false
+	);
+
+	Ensure-RegistryKey
+	(
+		Hive: LocalMachine,
+		Key: SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\UniversalPackageExplorer,
+		Exists: false
+	);
+}

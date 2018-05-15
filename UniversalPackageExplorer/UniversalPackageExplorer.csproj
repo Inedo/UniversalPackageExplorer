@@ -195,4 +195,8 @@
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>powershell -command "cp *.dll, *.exe, *.config $(SolutionDir)Installer\package"
+</PostBuildEvent>
+  </PropertyGroup>
 </Project>
