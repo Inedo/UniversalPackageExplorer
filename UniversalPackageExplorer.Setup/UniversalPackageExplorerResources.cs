@@ -6,7 +6,7 @@ namespace Inedo.UniversalPackageExplorer.Setup
 {
     internal static class UniversalPackageExplorerResources
     {
-        private static readonly Lazy<Brush> upackDarkGrayBrush = new Lazy<Brush>(() => Freeze(new SolidColorBrush(Color.FromRgb(0x59, 0x5C, 0x73)))); //595C73
+        private static readonly Lazy<Brush> upackDarkGrayBrush = new Lazy<Brush>(() => Freeze(new SolidColorBrush(Color.FromRgb(0x86, 0x89, 0xA1)))); //8689A1
 
         public static Brush UPackDarkGrayBrush => upackDarkGrayBrush.Value;
 

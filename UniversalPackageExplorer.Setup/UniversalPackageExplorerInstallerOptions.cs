@@ -60,6 +60,6 @@ namespace Inedo.UniversalPackageExplorer.Setup
             }
         }
 
-        private string DefaultTargetPath => Path.Combine(Environment.GetFolderPath(this.UserMode ? Environment.SpecialFolder.LocalApplicationData : Environment.SpecialFolder.ProgramFiles), "Romp");
+        private string DefaultTargetPath => Path.Combine(Environment.GetFolderPath(this.UserMode ? Environment.SpecialFolder.LocalApplicationData : Environment.SpecialFolder.ProgramFiles), "Universal Package Explorer");
     }
 }
