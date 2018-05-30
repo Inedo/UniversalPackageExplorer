@@ -3,7 +3,7 @@
 SetCompressor /SOLID lzma
 
 Name "Universal Package Explorer"
-Icon "romp.ico"
+Icon "upack.ico"
 OutFile "UPESetup.exe"
 BrandingText "Inedo, LLC"
 Caption "Extracting installer files..."
