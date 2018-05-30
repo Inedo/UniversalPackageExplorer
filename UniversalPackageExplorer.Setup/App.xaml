@@ -1,0 +1,14 @@
+﻿<inst:InstallerApplication x:Class="Inedo.UniversalPackageExplorer.Setup.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:inst="clr-namespace:Inedo.Installer;assembly=Inedo.Installer"
+             xmlns:local="clr-namespace:Inedo.UniversalPackageExplorer.Setup"
+             StartupUri="UI\MainWindow.xaml">
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="pack://application:,,,/Inedo.Installer;component/Themes/Generic.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Application.Resources>
+</inst:InstallerApplication>

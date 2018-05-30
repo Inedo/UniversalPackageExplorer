@@ -1,0 +1,23 @@
+﻿<inst:InstallerPageBase x:Class="Inedo.UniversalPackageExplorer.Setup.UI.SummaryPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      xmlns:inst="clr-namespace:Inedo.Installer.UI;assembly=Inedo.Installer"
+      xmlns:local="clr-namespace:Inedo.UniversalPackageExplorer.Setup.UI"
+      mc:Ignorable="d" d:DesignHeight="300" d:DesignWidth="300"
+	  Title="Summary">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition />
+            <RowDefinition Height="Auto" />
+            <RowDefinition />
+        </Grid.RowDefinitions>
+        <TextBlock Grid.Row="0" Text="Please review the settings on this page before beginning the installation." TextWrapping="Wrap"
+                   FontWeight="Bold" VerticalAlignment="Top" FontSize="16" />
+        <StackPanel Grid.Row="1" Margin="25,0,0,0" Orientation="Vertical">
+            <inst:SummaryItem ItemName="Mode" ItemValue="{Binding Path=UserModeText}" />
+            <inst:SummaryItem Margin="0,5,0,0" ItemName="Install to" ItemValue="{Binding Path=TargetPath}" />
+        </StackPanel>
+    </Grid>
+</inst:InstallerPageBase>

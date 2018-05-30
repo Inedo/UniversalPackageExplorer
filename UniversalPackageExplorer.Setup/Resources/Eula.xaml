@@ -1,0 +1,44 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <FlowDocument x:Key="eulaDocument">
+        <Paragraph>
+            This is a legally binding agreement and, like all contracts, you should read it carefully. Fortunately, we chose to use 218 words of plain English instead of
+                legalese for this agreement, so hopefully it won't be too painful for you.
+        </Paragraph>
+        <Paragraph>
+            If you install or otherwise use Universal Package Explorer, then you agree to be bound by the terms of this agreement. If you don't like the terms - or do not have the authority to accept the terms --
+            then don't install or use Universal Package Explorer.
+        </Paragraph>
+        <List MarkerStyle="Decimal">
+            <ListItem Margin="0,10,0,0">
+                <Paragraph>
+                    Universal Package Explorer is protected by all applicable local and international copyright laws.
+                </Paragraph>
+            </ListItem>
+            <ListItem Margin="0,10,0,0">
+                <Paragraph>
+                    Universal Package Explorer is licensed, not sold, and this license agreement grants you limited rights to use Universal Package Explorer.
+                    You may not redistribute, sublicense, or transfer this license or rights.
+                </Paragraph>
+            </ListItem>
+            <ListItem Margin="0,10,0,0">
+                <Paragraph>
+                    Universal Package Explorer is provided “as is” with no warranties. You assume all risk when
+                    installing or using Universal Package Explorer.
+                </Paragraph>
+            </ListItem>
+            <ListItem Margin="0,10,0,0">
+                <Paragraph>
+                    You will not hold us liable for any damages that arise from installation or use of Universal Package Explorer.
+                </Paragraph>
+            </ListItem>
+            <ListItem Margin="0,10,0,0">
+                <Paragraph>
+                    This agreement is governed by the laws of the State of Ohio. The state and federal courts
+                    located in Cuyahoga County will have sole jurisdiction any such dispute and you agree to
+                    irrevocably submit to the personal jurisdiction of such courts.
+                </Paragraph>
+            </ListItem>
+        </List>
+    </FlowDocument>
+</ResourceDictionary>

@@ -1,0 +1,44 @@
+﻿<inst:InstallerWindow x:Class="Inedo.UniversalPackageExplorer.Setup.UI.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:PresentationOptions="http://schemas.microsoft.com/winfx/2006/xaml/presentation/options"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:inst="clr-namespace:Inedo.Installer.UI;assembly=Inedo.Installer"
+        xmlns:local="clr-namespace:Inedo.UniversalPackageExplorer.Setup"
+        mc:Ignorable="d"
+        Title="Universal Package Explorer Installer" Height="565" Width="720" Icon="..\upack.ico" x:Name="window"
+        PagesSource="EulaPage,ModePage,TargetPathPage,SummaryPage"
+        Background="White" Foreground="#48729D">
+    <inst:InstallerWindow.Resources>
+        <inst:InvertedBooleanToVisibilityConverter x:Key="invertedBooleanConverter" />
+    </inst:InstallerWindow.Resources>
+    <inst:InstallerWindow.Heading>
+        <Grid Background="#35394B">
+            <Image Margin="40,12,0,16" HorizontalAlignment="Left">
+                <Image.Source>
+                    <DrawingImage PresentationOptions:Freeze="True">
+                        <DrawingImage.Drawing>
+                            <DrawingGroup>
+                                <GeometryDrawing Brush="#282B3A" Geometry="M21.5,5.8l-9-5c-0.6-0.3-1.3-0.3-2,0l-9,5c-0.6,0.4-1,1-1,1.7v10c0,0.7,0.4,1.4,1,1.7l9,5c0.6,0.3,1.3,0.3,2,0l9-5c0.6-0.4,1-1,1-1.7v-10C22.5,6.8,22.1,6.1,21.5,5.8z"/>
+                                <GeometryDrawing Brush="#B8B9C1" Geometry="M16.5,10.5v4.2v0.6l-4.2,2.4V21l6.7-3.8c0.3-0.2,0.5-0.5,0.5-0.9V8.8L16.5,10.5z"/>
+                                <GeometryDrawing Brush="#8689A1" Geometry="M4,7.7C3.7,7.9,3.5,8.3,3.5,8.6v7.6l3-1.7v-4.2V9.7l4.3-2.4V4L4,7.7z"/>
+                            </DrawingGroup>
+                        </DrawingImage.Drawing>
+                    </DrawingImage>
+                </Image.Source>
+            </Image>
+            <TextBlock Text="Universal Package Explorer Installer" Foreground="White" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="120,0,0,0" FontSize="14" />
+            <Border Background="{x:Static local:UniversalPackageExplorerResources.UPackDarkGrayBrush}" VerticalAlignment="Bottom" Height="7" HorizontalAlignment="Stretch" />
+        </Grid>
+    </inst:InstallerWindow.Heading>
+    <inst:InstallerWindow.SuccessContent>
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition />
+            </Grid.RowDefinitions>
+            <TextBlock Grid.Row="0" Text="Universal Package Explorer has been installed successfully." FontSize="16" TextWrapping="Wrap" />
+        </Grid>
+    </inst:InstallerWindow.SuccessContent>
+</inst:InstallerWindow>

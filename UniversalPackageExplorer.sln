@@ -5,18 +5,7 @@ VisualStudioVersion = 15.0.27130.2010
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UniversalPackageExplorer", "UniversalPackageExplorer\UniversalPackageExplorer.csproj", "{1E546812-AA7F-4CE4-9194-F7EF4E1C90D7}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Installer", "Installer", "{919D4A50-38F7-4679-816B-1C3060CA21BF}"
-	ProjectSection(SolutionItems) = preProject
-		Installer\install.otter = Installer\install.otter
-		Installer\packageVariables.json = Installer\packageVariables.json
-		Installer\uninstall.otter = Installer\uninstall.otter
-		Installer\upack.json = Installer\upack.json
-	EndProjectSection
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "package", "package", "{6580DD8D-18A8-4B43-AC23-FE22682606AB}"
-	ProjectSection(SolutionItems) = preProject
-		Installer\package\upeuininstall.bat = Installer\package\upeuininstall.bat
-	EndProjectSection
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UniversalPackageExplorer.Setup", "UniversalPackageExplorer.Setup\UniversalPackageExplorer.Setup.csproj", "{EE7AF7EE-2CC4-41EE-9EF1-A6A8ED6F05EA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -28,12 +17,13 @@ Global
 		{1E546812-AA7F-4CE4-9194-F7EF4E1C90D7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1E546812-AA7F-4CE4-9194-F7EF4E1C90D7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1E546812-AA7F-4CE4-9194-F7EF4E1C90D7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EE7AF7EE-2CC4-41EE-9EF1-A6A8ED6F05EA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EE7AF7EE-2CC4-41EE-9EF1-A6A8ED6F05EA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EE7AF7EE-2CC4-41EE-9EF1-A6A8ED6F05EA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EE7AF7EE-2CC4-41EE-9EF1-A6A8ED6F05EA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
-	EndGlobalSection
-	GlobalSection(NestedProjects) = preSolution
-		{6580DD8D-18A8-4B43-AC23-FE22682606AB} = {919D4A50-38F7-4679-816B-1C3060CA21BF}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {F283277D-395D-457D-B2CB-E304597CCEBC}
