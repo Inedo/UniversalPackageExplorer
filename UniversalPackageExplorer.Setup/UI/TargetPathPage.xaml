@@ -25,6 +25,8 @@
             <StackPanel Grid.Column="1" Orientation="Vertical">
                 <TextBlock Text="Install Universal Package Explorer to:" FontWeight="Bold" Margin="2,0,0,4" />
                 <TextBox Text="{Binding Path=TargetPath, Mode=TwoWay, ValidatesOnExceptions=True}" FontSize="18" />
+                <Rectangle Height="10"/>
+                <CheckBox Content="Add start menu shortcut" IsChecked="{Binding Path=StartMenuShortcut, Mode=TwoWay}"/>
             </StackPanel>
         </Grid>
     </Grid>

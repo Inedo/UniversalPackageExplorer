@@ -6,6 +6,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using Inedo.Installer;
 using Inedo.Installer.Subtasks;
+using Microsoft.Win32;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -24,8 +25,36 @@ namespace Inedo.UniversalPackageExplorer.Setup
 #pragma warning restore CS0162 // Unreachable code detected
 #endif
 
+            if (this.Options.StartMenuShortcut)
+            {
+                this.WriteStartMenuItems();
+            }
             this.InstallFiles();
             this.EnsurePath();
+            this.WriteUninstallInfo();
+        }
+
+        private void WriteStartMenuItems()
+        {
+            this.LogInformation("Creating start menu items...");
+            try
+            {
+                this.RunSubtask(
+                    new CreateStartMenuItemsSubtask
+                    {
+                        RootPath = @"Inedo\Universal Package Explorer",
+                        Items =
+                        {
+                            { "Universal Package Explorer", Path.Combine(this.Options.TargetPath, "UniversalPackageExplorer.exe") }
+                        }
+                    }
+                );
+            }
+            catch (Exception ex)
+            {
+                this.LogWarning("Error creating start menu items: " + ex.Message);
+                this.LogDebug(ex.ToString());
+            }
         }
 
         private void InstallFiles()
@@ -83,6 +112,39 @@ namespace Inedo.UniversalPackageExplorer.Setup
                     this.LogWarning("Unable to set ACL: " + ex.ToString());
                 }
             }
+        }
+
+        private void WriteUninstallInfo()
+        {
+            long totalSize = 4 * 1024 * 1024;
+            try
+            {
+                totalSize = Directory.EnumerateFiles("UniversalPackageExplorer", "*", SearchOption.AllDirectories)
+                    .Sum(f => new FileInfo(f).Length);
+            }
+            catch
+            {
+            }
+
+            this.RunSubtask(
+                new WriteRegistryKeySubtask
+                {
+                    RegistryHive = RegistryHive.LocalMachine,
+                    Subkey = @"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Universal Package Explorer",
+                    Values =
+                    {
+                        { "NoModify", 1 },
+                        { "NoRepair", 1 },
+                        { "DisplayName", "Universal Package Explorer" },
+                        { "DisplayIcon", Path.Combine(this.Options.TargetPath, "upeuninstall.exe") },
+                        { "EstimatedSize", (int)(totalSize / 1024) },
+                        { "HelpLink", "https://inedo.com/support" },
+                        { "Publisher", "Inedo, LLC" },
+                        { "DisplayVersion", typeof(InstallUniversalPackageExplorerTask).Assembly.GetName().Version.ToString() },
+                        { "UninstallString", Path.Combine(this.Options.TargetPath, "upeuninstall.exe") }
+                    }
+                }
+            );
         }
 
         private static void SplitUserAccount(string userAccount, out string userName, out string domainName)

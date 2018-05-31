@@ -8,6 +8,7 @@ namespace Inedo.UniversalPackageExplorer.Setup
     public sealed class UniversalPackageExplorerInstallerOptions : InstallationOptionsBase
     {
         private bool acceptsEula;
+        private bool startMenuShortcut;
         private bool userMode;
         private string targetPath;
 
@@ -17,6 +18,13 @@ namespace Inedo.UniversalPackageExplorer.Setup
             set => this.SetProperty(ref this.acceptsEula, value);
         }
         public override bool IsValid => true;
+
+        [InstallerArgument]
+        public bool StartMenuShortcut
+        {
+            get => this.startMenuShortcut;
+            set => this.SetProperty(ref this.startMenuShortcut, value);
+        }
 
         public string UserModeText => this.UserMode ? "User-level installation" : "Machine-level installation";
 
