@@ -19,11 +19,7 @@ namespace UniversalPackageExplorer
         {
             InitializeComponent();
             this.Closed += PublishWindow_Closed;
-
-            if (this.RecentEndpoints.Any())
-            {
-                this.CheckAuth();
-            }
+            this.CheckAuth();
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

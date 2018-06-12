@@ -91,20 +91,51 @@ namespace UniversalPackageExplorer
             }
         }
         public bool OperationsNotAllowed => !this.operationsAllowed;
+        private async Task PerformOperationAsync<T>(Func<Task<T>> process, Action<T> done)
+        {
+            await this.Dispatcher.InvokeAsync(() => this.OperationsAllowed = false);
+            T result = default(T);
+            bool success = false;
+            try
+            {
+                result = await process();
+                success = true;
+            }
+            finally
+            {
+                await this.Dispatcher.InvokeAsync(() =>
+                {
+                    try
+                    {
+                        if (success)
+                        {
+                            done(result);
+                        }
+                    }
+                    finally
+                    {
+                        this.OperationsAllowed = true;
+                    }
+                });
+            }
+        }
+        private async Task PerformOperationAsync(Func<Task> process)
+        {
+            await this.Dispatcher.InvokeAsync(() => this.OperationsAllowed = false);
+            try
+            {
+                await process();
+            }
+            finally
+            {
+                await this.Dispatcher.InvokeAsync(() => this.OperationsAllowed = true);
+            }
+        }
 
         private void OpenFile(string fullName)
         {
             this.AddRecentFile(fullName);
-            this.OperationsAllowed = false;
-            Task.Run(async () =>
-            {
-                var package = await UniversalPackage.CreateAsync(fullName);
-                await this.Dispatcher.InvokeAsync(() =>
-                {
-                    this.Package = package;
-                    this.OperationsAllowed = true;
-                });
-            });
+            Task.Run(() => this.PerformOperationAsync(() => UniversalPackage.CreateAsync(fullName), p => this.Package = p));
         }
 
         private void AddRecentFile(string name)

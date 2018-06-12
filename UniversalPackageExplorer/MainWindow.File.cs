@@ -65,17 +65,7 @@ namespace UniversalPackageExplorer
 
             if (dialog.ShowDialog() == true)
             {
-                this.OperationsAllowed = false;
-                Task.Run(async () =>
-                {
-                    var package = await dialog.DownloadAsync();
-
-                    await this.Dispatcher.InvokeAsync(() =>
-                    {
-                        this.Package = package;
-                        this.OperationsAllowed = true;
-                    });
-                });
+                Task.Run(() => this.PerformOperationAsync(dialog.DownloadAsync, p => this.Package = p));
             }
         }
         private void File_CanClose(object sender, CanExecuteRoutedEventArgs e)
@@ -103,12 +93,7 @@ namespace UniversalPackageExplorer
                 return;
             }
 
-            this.OperationsAllowed = false;
-            Task.Run(async () =>
-            {
-                await this.Package.SaveAsync();
-                await this.Dispatcher.InvokeAsync(() => this.OperationsAllowed = true);
-            });
+            Task.Run(() => this.PerformOperationAsync(this.package.SaveAsync));
         }
         private void File_CanSaveAs(object sender, CanExecuteRoutedEventArgs e)
         {
@@ -132,16 +117,11 @@ namespace UniversalPackageExplorer
             }
 
             this.Package.FullName = dialog.FileName;
-            this.OperationsAllowed = false;
-            Task.Run(async () =>
+            Task.Run(() => this.PerformOperationAsync(async () =>
             {
                 await this.Package.SaveAsync();
-                await this.Dispatcher.InvokeAsync(() =>
-                {
-                    this.AddRecentFile(this.Package.FullName);
-                    this.OperationsAllowed = true;
-                });
-            });
+                return this.Package.FullName;
+            }, this.AddRecentFile));
         }
 
         private void File_CanPublish(object sender, CanExecuteRoutedEventArgs e)
@@ -153,24 +133,16 @@ namespace UniversalPackageExplorer
             var dialog = new PublishWindow { Owner = this };
             dialog.Show();
 
-            this.OperationsAllowed = false;
-            Task.Run(async () =>
+            Task.Run(() => this.PerformOperationAsync(this.Package.CopyToTempAsync, tempCopy =>
             {
-                var tempCopy = await this.Package.CopyToTempAsync();
-
-                await this.Dispatcher.InvokeAsync(() =>
+                if (!dialog.IsVisible)
                 {
-                    this.OperationsAllowed = true;
+                    tempCopy.Dispose();
+                    return;
+                }
 
-                    if (!dialog.IsVisible)
-                    {
-                        tempCopy.Dispose();
-                        return;
-                    }
-
-                    dialog.FileToUpload = tempCopy;
-                });
-            });
+                dialog.FileToUpload = tempCopy;
+            }));
         }
 
         private async void File_OpenRecentFile(object sender, ExecutedRoutedEventArgs e)

@@ -23,8 +23,7 @@ namespace UniversalPackageExplorer
         {
             var file = this.FileTree.SelectedItem;
 
-            this.OperationsAllowed = false;
-            Task.Run(async () =>
+            Task.Run(() => this.PerformOperationAsync(async () =>
             {
                 var fullName = await file.ExportTempFileAsync();
 
@@ -33,16 +32,13 @@ namespace UniversalPackageExplorer
                 txtCommand = txtCommand.Replace("\"%1\"", "\"" + fullName.Replace("\"", "\"\"") + "\"");
 
                 Process.Start(new ProcessStartInfo("cmd.exe", "/c start \"\" " + txtCommand) { UseShellExecute = false, CreateNoWindow = true }).Dispose();
-
-                await this.Dispatcher.InvokeAsync(() => this.OperationsAllowed = true);
-            });
+            }));
         }
         private void Content_OpenFileInWindowsShell(object sender, ExecutedRoutedEventArgs e)
         {
             var file = this.FileTree.SelectedItem;
 
-            this.OperationsAllowed = false;
-            Task.Run(async () =>
+            Task.Run(() => this.PerformOperationAsync(async () =>
             {
                 string fullName;
                 if (file.Collection == this.Package.Metadata)
@@ -63,9 +59,7 @@ namespace UniversalPackageExplorer
                 {
                     Process.Start("rundll32.exe", "shell32.dll, OpenAs_RunDLL " + fullName).Dispose();
                 }
-
-                await this.Dispatcher.InvokeAsync(() => this.OperationsAllowed = true);
-            });
+            }));
         }
         private void Content_SaveFileAs(object sender, ExecutedRoutedEventArgs e)
         {
@@ -100,20 +94,14 @@ namespace UniversalPackageExplorer
                 return;
             }
 
-            this.OperationsAllowed = false;
-            Task.Run(async () =>
+            Task.Run(() => this.PerformOperationAsync(async () =>
             {
                 Directory.CreateDirectory(Path.GetDirectoryName(dialog.FileName));
                 using (var stream = new FileStream(dialog.FileName, FileMode.Create, FileAccess.Write, FileShare.None, 4096, FileOptions.Asynchronous | FileOptions.SequentialScan))
                 {
                     await file.CopyToAsync(stream);
                 }
-
-                await this.Dispatcher.InvokeAsync(() =>
-                {
-                    this.OperationsAllowed = true;
-                });
-            });
+            }));
         }
 
         private void Content_NewFile(object sender, ExecutedRoutedEventArgs e)
@@ -129,16 +117,7 @@ namespace UniversalPackageExplorer
 
             if (prompt.ShowDialog() == true)
             {
-                this.OperationsAllowed = false;
-                Task.Run(async () =>
-                {
-                    var file = await collection.CreateFileAsync(prefix + prompt.Text);
-                    await this.Dispatcher.InvokeAsync(() =>
-                    {
-                        this.FocusInTree(file);
-                        this.OperationsAllowed = true;
-                    });
-                });
+                Task.Run(() => this.PerformOperationAsync(() => collection.CreateFileAsync(prefix + prompt.Text), this.FocusInTree));
             }
         }
 
@@ -158,8 +137,7 @@ namespace UniversalPackageExplorer
 
             if (dialog.ShowDialog(this) == true)
             {
-                this.OperationsAllowed = false;
-                Task.Run(async () =>
+                Task.Run(() => this.PerformOperationAsync(async () =>
                 {
                     UniversalPackageFile firstFile = null;
 
@@ -207,15 +185,14 @@ namespace UniversalPackageExplorer
                         }
                     }
 
-                    await this.Dispatcher.InvokeAsync(() =>
+                    return firstFile;
+                }, firstFile =>
+                {
+                    if (firstFile != null)
                     {
-                        if (firstFile != null)
-                        {
-                            this.FocusInTree(firstFile);
-                        }
-                        this.OperationsAllowed = true;
-                    });
-                });
+                        this.FocusInTree(firstFile);
+                    }
+                }));
             }
         }
 
@@ -232,16 +209,7 @@ namespace UniversalPackageExplorer
 
             if (prompt.ShowDialog() == true)
             {
-                this.OperationsAllowed = false;
-                Task.Run(async () =>
-                {
-                    var file = await collection.CreateDirectoryAsync(prefix + prompt.Text + "/");
-                    await this.Dispatcher.InvokeAsync(() =>
-                    {
-                        this.FocusInTree(file);
-                        this.OperationsAllowed = true;
-                    });
-                });
+                Task.Run(() => this.PerformOperationAsync(() => collection.CreateDirectoryAsync(prefix + prompt.Text + "/"), this.FocusInTree));
             }
         }
 
@@ -257,9 +225,8 @@ namespace UniversalPackageExplorer
             };
             if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
             {
-                this.OperationsAllowed = false;
                 var folderName = dialog.SelectedPath;
-                Task.Run(async () =>
+                Task.Run(() => this.PerformOperationAsync(async () =>
                 {
                     UniversalPackageFile rootFolder;
                     try
@@ -294,23 +261,16 @@ namespace UniversalPackageExplorer
                         }
                     }
 
-                    if (rootFolder == null)
-                    {
-                        await this.Dispatcher.InvokeAsync(() =>
-                        {
-                            this.OperationsAllowed = true;
-                        });
-                        return;
-                    }
+                    await rootFolder?.ImportFromFileSystemAsync(folderName);
 
-                    await rootFolder.ImportFromFileSystemAsync(folderName);
-
-                    await this.Dispatcher.InvokeAsync(() =>
+                    return rootFolder;
+                }, rootFolder =>
+                {
+                    if (rootFolder != null)
                     {
                         this.FocusInTree(rootFolder);
-                        this.OperationsAllowed = true;
-                    });
-                });
+                    }
+                }));
             }
         }
 
@@ -331,16 +291,11 @@ namespace UniversalPackageExplorer
 
             if (prompt.ShowDialog() == true)
             {
-                this.OperationsAllowed = false;
-                Task.Run(async () =>
+                Task.Run(() => this.PerformOperationAsync(async () =>
                 {
                     await file.RenameAsync(prefix + prompt.Text);
-                    await this.Dispatcher.InvokeAsync(() =>
-                    {
-                        this.FocusInTree(file);
-                        this.OperationsAllowed = true;
-                    });
-                });
+                    return file;
+                }, this.FocusInTree));
             }
         }
 
@@ -359,12 +314,7 @@ namespace UniversalPackageExplorer
 
             if (confirm.ShowDialog() == true)
             {
-                this.OperationsAllowed = false;
-                Task.Run(async () =>
-                {
-                    await file.DeleteAsync();
-                    await this.Dispatcher.InvokeAsync(() => this.OperationsAllowed = true);
-                });
+                Task.Run(() => this.PerformOperationAsync(file.DeleteAsync));
             }
         }
 
@@ -383,8 +333,7 @@ namespace UniversalPackageExplorer
 
             if (confirm.ShowDialog() == true)
             {
-                this.OperationsAllowed = false;
-                Task.Run(async () =>
+                Task.Run(() => this.PerformOperationAsync(async () =>
                 {
                     var dir = file.FullName.Substring(0, file.FullName.Length - file.Name.Length - 1);
                     var children = file.Children.ToArray();
@@ -393,8 +342,7 @@ namespace UniversalPackageExplorer
                         await c.RenameAsync(dir + c.Name);
                     }
                     await file.DeleteAsync();
-                    await this.Dispatcher.InvokeAsync(() => this.OperationsAllowed = true);
-                });
+                }));
             }
         }
 
