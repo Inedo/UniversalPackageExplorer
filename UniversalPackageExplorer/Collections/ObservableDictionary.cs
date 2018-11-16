@@ -18,7 +18,14 @@ namespace UniversalPackageExplorer.Collections
 
         private int? FindIndex(TKey key)
         {
-            throw new NotImplementedException();
+            for (int i = 0; i < inner.Count; i++)
+            {
+                if (object.Equals(key, inner[i].Key))
+                {
+                    return i;
+                }
+            }
+            return null;
         }
 
         public KeyValuePair<TKey, TValue> this[int index]
