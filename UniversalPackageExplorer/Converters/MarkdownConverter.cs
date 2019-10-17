@@ -35,6 +35,7 @@ namespace UniversalPackageExplorer.Converters
                 case BlockTag.BlockQuote:
                     return new Section(Fill(block.FirstChild)) { Margin = new Thickness(20, 0, 20, 0) };
                 case BlockTag.List:
+                case BlockTag.ListItem:
                     var list = new List();
                     var item = block.FirstChild;
                     while (item != null)
